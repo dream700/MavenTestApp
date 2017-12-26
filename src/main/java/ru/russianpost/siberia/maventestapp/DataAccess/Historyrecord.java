@@ -13,11 +13,14 @@ import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -34,8 +37,6 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Historyrecord.findAll", query = "SELECT h FROM Historyrecord h")
     , @NamedQuery(name = "Historyrecord.findById", query = "SELECT h FROM Historyrecord h WHERE h.id = :id")
     , @NamedQuery(name = "Historyrecord.findByDestinationaddressDescription", query = "SELECT h FROM Historyrecord h WHERE h.destinationaddressDescription = :destinationaddressDescription")
-    , @NamedQuery(name = "Historyrecord.findByOperdate", query = "SELECT h FROM Historyrecord h WHERE h.operdate = :operdate")
-    , @NamedQuery(name = "Historyrecord.findByOperatondelta", query = "SELECT h FROM Historyrecord h WHERE h.operatondelta = :operatondelta")
     , @NamedQuery(name = "Historyrecord.findByDestinationAddressIndex", query = "SELECT h FROM Historyrecord h WHERE h.destinationAddressIndex = :destinationAddressIndex")
     , @NamedQuery(name = "Historyrecord.findByOperationAddressIndex", query = "SELECT h FROM Historyrecord h WHERE h.operationAddressIndex = :operationAddressIndex")
     , @NamedQuery(name = "Historyrecord.findByOperationAddressDescription", query = "SELECT h FROM Historyrecord h WHERE h.operationAddressDescription = :operationAddressDescription")
@@ -59,14 +60,11 @@ public class Historyrecord implements Serializable {
     @Id
     @Basic(optional = false)
     @Column(name = "id", nullable = false)
+    @SequenceGenerator(name = "pk_sequence", sequenceName = "historyrec_id_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pk_sequence")
     private Integer id;
     @Column(name = "destinationaddress_description", length = 255)
     private String destinationaddressDescription;
-    @Column(name = "operdate")
-    @Temporal(TemporalType.DATE)
-    private Date operdate;
-    @Column(name = "operatondelta")
-    private Integer operatondelta;
     @Column(name = "DestinationAddress_Index", length = 6)
     private String destinationAddressIndex;
     @Column(name = "OperationAddress_Index", length = 6)
@@ -108,6 +106,7 @@ public class Historyrecord implements Serializable {
     private Ticket barcode;
 
     public Historyrecord() {
+        this.id = 1;
         this.destinationAddressIndex = "";
         this.destinationaddressDescription = "";
         this.operationAddressIndex = "";
@@ -129,6 +128,7 @@ public class Historyrecord implements Serializable {
     }
 
     public Historyrecord(Date lastOperDate) {
+        this.id = 1;
         this.destinationAddressIndex = "";
         this.destinationaddressDescription = "";
         this.operationAddressIndex = "";
@@ -169,15 +169,7 @@ public class Historyrecord implements Serializable {
         this.destinationaddressDescription = destinationaddressDescription;
     }
 
-    public Date getOperdate() {
-        return operdate;
-    }
-
-    public void setOperdate(Date operdate) {
-        this.operDate = operdate;
-    }
-
-    public void setOperdate(String operdate) {
+    public void setOperDate(String operdate) {
         DateFormat sf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
         Date parseDate;
         try {
@@ -192,14 +184,6 @@ public class Historyrecord implements Serializable {
         } else {
             this.operatonDelta = 0;
         }
-    }
-
-    public Integer getOperatondelta() {
-        return operatondelta;
-    }
-
-    public void setOperatondelta(Integer operatondelta) {
-        this.operatondelta = operatondelta;
     }
 
     public String getDestinationAddressIndex() {

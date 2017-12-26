@@ -9,10 +9,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -44,7 +45,7 @@ public class Ticket implements Serializable {
     @Column(name = "DateFetch")
     @Temporal(TemporalType.DATE)
     private Date dateFetch;
-    @OneToMany(mappedBy = "barcode")
+    @OneToMany(mappedBy = "barcode",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Collection<Historyrecord> historyrecordCollection;
 
     public Ticket() {

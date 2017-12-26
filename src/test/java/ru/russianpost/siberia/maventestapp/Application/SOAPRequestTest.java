@@ -7,6 +7,7 @@ package ru.russianpost.siberia.maventestapp.Application;
 
 import java.util.Collection;
 import java.util.Iterator;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.xml.soap.SOAPBody;
@@ -134,7 +135,7 @@ public class SOAPRequestTest {
                     his.setOperAttrName(getValue(eElement));
                 }
                 if ("OperDate".equals(eElement.getLocalName())) {
-                    his.setOperdate(getValue(eElement));
+                    his.setOperDate(getValue(eElement));
                 }
                 if ("Sndr".equals(eElement.getLocalName())) {
                     his.setSndr(getValue(eElement));
@@ -142,12 +143,6 @@ public class SOAPRequestTest {
                 if ("Rcpn".equals(eElement.getLocalName())) {
                     his.setRcpn(getValue(eElement));
                 }
-
-//                System.out.println(eElement.getLocalName());
-//                System.out.println(node.getNodeValue());
-//                if (eElement.hasChildNodes()) {
-//                    System.out.println(eElement.getChildNodes().item(0).getNodeValue());
-//                }
                 if (eElement.hasChildNodes()) {
                     getData(eElement.getChildNodes());
                 }
@@ -158,10 +153,12 @@ public class SOAPRequestTest {
 
     /**
      * Test of GetTicket method, of class SOAPRequest.
+     *
+     * @throws java.lang.Exception
      */
     @Test
     public void testGetTicket() throws Exception {
-System.out.println("GetTicket");
+        System.out.println("GetTicket");
         String Ticket = "64405017729544";
         SOAPRequest instance = new SOAPRequest(login, password);
         String expResult = "644060";
@@ -189,12 +186,16 @@ System.out.println("GetTicket");
         }
 
         System.out.println(ticket.toString());
-        
-        
-         EntityManagerFactory emf = Persistence.createEntityManagerFactory("PERSISTENCE");
-         
-        TicketJpaController DBTicket = new TicketJpaController(emf);
-        DBTicket.create(ticket);
+
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PERSISTENCE");
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        em.persist(ticket);
+        em.getTransaction().commit();
+        em.close();
+
+//        TicketJpaController DBTicket = new TicketJpaController(emf);
+//        DBTicket.create(ticket);
     }
 
 }
