@@ -15,6 +15,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -29,7 +31,7 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author Andrey.Isakov
  */
 @Entity
-@Table(name = "ticket")
+@Table(name = "ticket",schema = "app")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Ticket.findAll", query = "SELECT t FROM Ticket t")
@@ -45,7 +47,8 @@ public class Ticket implements Serializable {
     @Column(name = "DateFetch")
     @Temporal(TemporalType.DATE)
     private Date dateFetch;
-    @OneToMany(mappedBy = "barcode",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "barcode", referencedColumnName = "barcode")
     private Collection<Historyrecord> historyrecordCollection;
 
     public Ticket() {

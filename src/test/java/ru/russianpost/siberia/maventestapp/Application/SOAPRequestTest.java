@@ -187,7 +187,7 @@ public class SOAPRequestTest {
 
         System.out.println(ticket.toString());
 
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PERSISTENCE");
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PERSISTENCE-TEST");
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
         em.persist(ticket);

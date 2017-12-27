@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Andrey.Isakov
  */
 @Entity
-@Table(name = "historyrecord")
+@Table(name = "historyrecord",schema = "app")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Historyrecord.findAll", query = "SELECT h FROM Historyrecord h")
@@ -53,14 +53,15 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Historyrecord.findByLastOperDate", query = "SELECT h FROM Historyrecord h WHERE h.lastOperDate = :lastOperDate")
     , @NamedQuery(name = "Historyrecord.findBySndr", query = "SELECT h FROM Historyrecord h WHERE h.sndr = :sndr")
     , @NamedQuery(name = "Historyrecord.findByRcpn", query = "SELECT h FROM Historyrecord h WHERE h.rcpn = :rcpn")
-    , @NamedQuery(name = "Historyrecord.findByOperatonDelta", query = "SELECT h FROM Historyrecord h WHERE h.operatonDelta = :operatonDelta")})
+    , @NamedQuery(name = "Historyrecord.findByOperatonDelta", query = "SELECT h FROM Historyrecord h WHERE h.operatonDelta = :operatonDelta")
+    , @NamedQuery(name = "Historyrecord.findBybarcode", query = "SELECT h FROM Historyrecord h WHERE h.barcode = :barcode")})
 public class Historyrecord implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
     @Column(name = "id", nullable = false)
-    @SequenceGenerator(name = "pk_sequence", sequenceName = "historyrec_id_seq")
+    @SequenceGenerator(name = "pk_sequence", sequenceName = "historyrec_id_seq", schema = "app")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pk_sequence")
     private Integer id;
     @Column(name = "destinationaddress_description", length = 255)
@@ -90,10 +91,10 @@ public class Historyrecord implements Serializable {
     @Column(name = "OperAttrName", length = 255)
     private String operAttrName;
     @Column(name = "OperDate")
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date operDate;
     @Column(name = "lastOperDate")
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date lastOperDate;
     @Column(name = "Sndr", length = 255)
     private String sndr;
@@ -101,9 +102,17 @@ public class Historyrecord implements Serializable {
     private String rcpn;
     @Column(name = "OperatonDelta")
     private Integer operatonDelta;
-    @JoinColumn(name = "barcode", referencedColumnName = "barcode")
     @ManyToOne
+    @JoinColumn(name = "barcode")
     private Ticket barcode;
+
+    public Ticket getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(Ticket barcode) {
+        this.barcode = barcode;
+    }
 
     public Historyrecord() {
         this.id = 1;
@@ -336,14 +345,6 @@ public class Historyrecord implements Serializable {
 
     public void setOperatonDelta(Integer operatonDelta) {
         this.operatonDelta = operatonDelta;
-    }
-
-    public Ticket getBarcode() {
-        return barcode;
-    }
-
-    public void setBarcode(Ticket barcode) {
-        this.barcode = barcode;
     }
 
     @Override
