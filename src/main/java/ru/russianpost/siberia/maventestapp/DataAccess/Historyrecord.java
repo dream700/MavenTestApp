@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Andrey.Isakov
  */
 @Entity
-@Table(name = "historyrecord",schema = "app")
+@Table(name = "historyrecord", schema = "app")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Historyrecord.findAll", query = "SELECT h FROM Historyrecord h")
@@ -178,8 +178,13 @@ public class Historyrecord implements Serializable {
         this.destinationaddressDescription = destinationaddressDescription;
     }
 
-    public void setOperDate(String operdate) {
-        DateFormat sf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+    public void setOperDate(String operdate, boolean isBatch) {
+        DateFormat sf;
+        if (isBatch) {
+            sf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+        } else {
+            sf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");            
+        }
         Date parseDate;
         try {
             parseDate = sf.parse(operdate);

@@ -135,7 +135,7 @@ public class SOAPRequestTest {
                     his.setOperAttrName(getValue(eElement));
                 }
                 if ("OperDate".equals(eElement.getLocalName())) {
-                    his.setOperDate(getValue(eElement));
+                    his.setOperDate(getValue(eElement),false);
                 }
                 if ("Sndr".equals(eElement.getLocalName())) {
                     his.setSndr(getValue(eElement));

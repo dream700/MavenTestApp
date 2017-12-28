@@ -45,7 +45,7 @@ public class Ticket implements Serializable {
     @Column(name = "barcode", nullable = false, length = 16)
     private String barcode;
     @Column(name = "DateFetch")
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date dateFetch;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "barcode", referencedColumnName = "barcode")
