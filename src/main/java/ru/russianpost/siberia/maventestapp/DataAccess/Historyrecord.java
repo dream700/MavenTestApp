@@ -389,7 +389,7 @@ public class Historyrecord implements Serializable {
     }
 
     public Integer getOperatonDelta() {
-        return operatonDelta;
+        return operatonDelta/60;
     }
 
     public void setOperatonDelta(Integer operatonDelta) {
