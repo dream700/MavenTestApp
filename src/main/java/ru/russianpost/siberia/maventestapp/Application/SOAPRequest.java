@@ -56,7 +56,7 @@ public class SOAPRequest {
     }
    
     
-    public SOAPMessage GetTicket(String Ticket) throws SOAPException, TransformerConfigurationException, TransformerException {
+    public SOAPMessage GetTicket(String Ticket) throws SOAPException {
         //Cоздаем соединение
         SOAPConnectionFactory soapConnFactory = SOAPConnectionFactory.newInstance();
         SOAPConnection connection = soapConnFactory.createConnection();
@@ -98,14 +98,6 @@ public class SOAPRequest {
 
         //Отправляем запрос и выводим ответ на экран
         SOAPMessage soapResponse = connection.call(message,url);
-        Source sourceContent = soapResponse.getSOAPPart().getContent();
-        Transformer t= TransformerFactory.newInstance().newTransformer();
-        t.setOutputProperty(OutputKeys.METHOD, "xml");
-        t.setOutputProperty(OutputKeys.INDENT, "yes");
-        StringWriter writer = new StringWriter();
-        StreamResult result = new StreamResult(writer);
-        t.transform(sourceContent, result);
-        StringBuffer sb = writer.getBuffer();       
         
         //Закрываем соединение
         connection.close();

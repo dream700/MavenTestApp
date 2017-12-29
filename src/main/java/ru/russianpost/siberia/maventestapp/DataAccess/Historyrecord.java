@@ -5,6 +5,8 @@
  */
 package ru.russianpost.siberia.maventestapp.DataAccess;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -24,6 +26,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -56,6 +59,9 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Historyrecord.findByOperatonDelta", query = "SELECT h FROM Historyrecord h WHERE h.operatonDelta = :operatonDelta")
     , @NamedQuery(name = "Historyrecord.findBybarcode", query = "SELECT h FROM Historyrecord h WHERE h.barcode = :barcode")})
 public class Historyrecord implements Serializable {
+
+    @Transient
+    private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -111,7 +117,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setBarcode(Ticket barcode) {
+        Ticket oldBarcode = this.barcode;
         this.barcode = barcode;
+        changeSupport.firePropertyChange("barcode", oldBarcode, barcode);
     }
 
     public Historyrecord() {
@@ -167,7 +175,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setId(Integer id) {
+        Integer oldId = this.id;
         this.id = id;
+        changeSupport.firePropertyChange("id", oldId, id);
     }
 
     public String getDestinationaddressDescription() {
@@ -175,7 +185,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setDestinationaddressDescription(String destinationaddressDescription) {
+        String oldDestinationaddressDescription = this.destinationaddressDescription;
         this.destinationaddressDescription = destinationaddressDescription;
+        changeSupport.firePropertyChange("destinationaddressDescription", oldDestinationaddressDescription, destinationaddressDescription);
     }
 
     public void setOperDate(String operdate, boolean isBatch) {
@@ -205,7 +217,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setDestinationAddressIndex(String destinationAddressIndex) {
+        String oldDestinationAddressIndex = this.destinationAddressIndex;
         this.destinationAddressIndex = destinationAddressIndex;
+        changeSupport.firePropertyChange("destinationAddressIndex", oldDestinationAddressIndex, destinationAddressIndex);
     }
 
     public String getOperationAddressIndex() {
@@ -213,7 +227,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setOperationAddressIndex(String operationAddressIndex) {
+        String oldOperationAddressIndex = this.operationAddressIndex;
         this.operationAddressIndex = operationAddressIndex;
+        changeSupport.firePropertyChange("operationAddressIndex", oldOperationAddressIndex, operationAddressIndex);
     }
 
     public String getOperationAddressDescription() {
@@ -221,7 +237,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setOperationAddressDescription(String operationAddressDescription) {
+        String oldOperationAddressDescription = this.operationAddressDescription;
         this.operationAddressDescription = operationAddressDescription;
+        changeSupport.firePropertyChange("operationAddressDescription", oldOperationAddressDescription, operationAddressDescription);
     }
 
     public Integer getMailDirectID() {
@@ -229,7 +247,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setMailDirectID(Integer mailDirectID) {
+        Integer oldMailDirectID = this.mailDirectID;
         this.mailDirectID = mailDirectID;
+        changeSupport.firePropertyChange("mailDirectID", oldMailDirectID, mailDirectID);
     }
 
     public void setMailDirectID(String mailDirectID) {
@@ -241,7 +261,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setMailDirectNameRU(String mailDirectNameRU) {
+        String oldMailDirectNameRU = this.mailDirectNameRU;
         this.mailDirectNameRU = mailDirectNameRU;
+        changeSupport.firePropertyChange("mailDirectNameRU", oldMailDirectNameRU, mailDirectNameRU);
     }
 
     public Integer getCountryOperID() {
@@ -249,7 +271,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setCountryOperID(Integer countryOperID) {
+        Integer oldCountryOperID = this.countryOperID;
         this.countryOperID = countryOperID;
+        changeSupport.firePropertyChange("countryOperID", oldCountryOperID, countryOperID);
     }
 
     public void setCountryOperID(String countryOperID) {
@@ -261,7 +285,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setComplexItemName(String complexItemName) {
+        String oldComplexItemName = this.complexItemName;
         this.complexItemName = complexItemName;
+        changeSupport.firePropertyChange("complexItemName", oldComplexItemName, complexItemName);
     }
 
     public String getMass() {
@@ -269,7 +295,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setMass(String mass) {
+        String oldMass = this.mass;
         this.mass = mass;
+        changeSupport.firePropertyChange("mass", oldMass, mass);
     }
 
     public Integer getOperTypeID() {
@@ -277,7 +305,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setOperTypeID(Integer operTypeID) {
+        Integer oldOperTypeID = this.operTypeID;
         this.operTypeID = operTypeID;
+        changeSupport.firePropertyChange("operTypeID", oldOperTypeID, operTypeID);
     }
 
     public void setOperTypeID(String operTypeID) {
@@ -289,7 +319,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setOperTypeName(String operTypeName) {
+        String oldOperTypeName = this.operTypeName;
         this.operTypeName = operTypeName;
+        changeSupport.firePropertyChange("operTypeName", oldOperTypeName, operTypeName);
     }
 
     public Integer getOperAttrID() {
@@ -297,7 +329,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setOperAttrID(Integer operAttrID) {
+        Integer oldOperAttrID = this.operAttrID;
         this.operAttrID = operAttrID;
+        changeSupport.firePropertyChange("operAttrID", oldOperAttrID, operAttrID);
     }
 
     public void setOperAttrID(String operAttrID) {
@@ -309,7 +343,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setOperAttrName(String operAttrName) {
+        String oldOperAttrName = this.operAttrName;
         this.operAttrName = operAttrName;
+        changeSupport.firePropertyChange("operAttrName", oldOperAttrName, operAttrName);
     }
 
     public Date getOperDate() {
@@ -317,7 +353,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setOperDate(Date operDate) {
+        Date oldOperDate = this.operDate;
         this.operDate = operDate;
+        changeSupport.firePropertyChange("operDate", oldOperDate, operDate);
     }
 
     public Date getLastOperDate() {
@@ -325,7 +363,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setLastOperDate(Date lastOperDate) {
+        Date oldLastOperDate = this.lastOperDate;
         this.lastOperDate = lastOperDate;
+        changeSupport.firePropertyChange("lastOperDate", oldLastOperDate, lastOperDate);
     }
 
     public String getSndr() {
@@ -333,7 +373,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setSndr(String sndr) {
+        String oldSndr = this.sndr;
         this.sndr = sndr;
+        changeSupport.firePropertyChange("sndr", oldSndr, sndr);
     }
 
     public String getRcpn() {
@@ -341,7 +383,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setRcpn(String rcpn) {
+        String oldRcpn = this.rcpn;
         this.rcpn = rcpn;
+        changeSupport.firePropertyChange("rcpn", oldRcpn, rcpn);
     }
 
     public Integer getOperatonDelta() {
@@ -349,7 +393,9 @@ public class Historyrecord implements Serializable {
     }
 
     public void setOperatonDelta(Integer operatonDelta) {
+        Integer oldOperatonDelta = this.operatonDelta;
         this.operatonDelta = operatonDelta;
+        changeSupport.firePropertyChange("operatonDelta", oldOperatonDelta, operatonDelta);
     }
 
     @Override
@@ -375,6 +421,14 @@ public class Historyrecord implements Serializable {
     @Override
     public String toString() {
         return "\nDataAccess.Historyrecord[ OperationAddress_Index=" + operationAddressIndex + ", OperTypeName=" + operTypeName + ", OperAttrName=" + operAttrName + "Delta: " + String.valueOf(this.operatonDelta) + ", OperDate=" + operDate + ']';
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        changeSupport.addPropertyChangeListener(listener);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        changeSupport.removePropertyChangeListener(listener);
     }
 
 }
