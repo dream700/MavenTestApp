@@ -8,38 +8,39 @@ package ru.russianpost.siberia.maventestapp.Application;
 import java.awt.Cursor;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.Persistence;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.xml.soap.SOAPBody;
+import javax.persistence.TypedQuery;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.TransformerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import ru.russianpost.siberia.maventestapp.DataAccess.Historyrecord;
+import ru.russianpost.siberia.maventestapp.DataAccess.HistoryrecordModel;
 import ru.russianpost.siberia.maventestapp.DataAccess.Ticket;
 
 /**
  *
  * @author Andrey.Isakov
  */
-public class frGetTicketJInternalFrame extends javax.swing.JInternalFrame {
+public class GetTicketJInternalFrame extends javax.swing.JInternalFrame {
 
     String login = "hfaoUUkggxfrPJ";
     String password = "8O4OofKi4Nsz";
+    Historyrecord his;
     private Ticket ticket;
 
     /**
      * Creates new form frGetTicketJInternalFrame
      */
-    public frGetTicketJInternalFrame() {
+    public GetTicketJInternalFrame() {
         ticket = null;
         initComponents();
     }
@@ -51,12 +52,6 @@ public class frGetTicketJInternalFrame extends javax.swing.JInternalFrame {
         NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
         Node nValus = (Node) nlList.item(0);
         return nValus.getNodeValue();
-    }
-
-    Historyrecord his;
-
-    public Historyrecord getHis() {
-        return his;
     }
 
     private static String getValue(Element element) {
@@ -147,11 +142,7 @@ public class frGetTicketJInternalFrame extends javax.swing.JInternalFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
-        em = java.beans.Beans.isDesignTime() ? null : javax.persistence.Persistence.createEntityManagerFactory("PERSISTENCE-TEST").createEntityManager();
-        qu = java.beans.Beans.isDesignTime() ? null : em.createQuery("SELECT h FROM Historyrecord h");
-        quList = java.beans.Beans.isDesignTime() ? java.util.Collections.emptyList() : qu.getResultList();
         jLabel1 = new javax.swing.JLabel();
         edBarcode = new javax.swing.JTextField();
         btGetTicket = new javax.swing.JButton();
@@ -170,32 +161,15 @@ public class frGetTicketJInternalFrame extends javax.swing.JInternalFrame {
             }
         });
 
-        jTable.getTableHeader().setReorderingAllowed(false);
+        jTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
 
-        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, quList, jTable);
-        org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${operationAddressIndex}"));
-        columnBinding.setColumnName("Индекс");
-        columnBinding.setColumnClass(String.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${operDate}"));
-        columnBinding.setColumnName("Дата");
-        columnBinding.setColumnClass(java.util.Date.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${operTypeID}"));
-        columnBinding.setColumnName("Тип ID");
-        columnBinding.setColumnClass(Integer.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${operTypeName}"));
-        columnBinding.setColumnName("Тип операции");
-        columnBinding.setColumnClass(String.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${operAttrID}"));
-        columnBinding.setColumnName("Атр ID");
-        columnBinding.setColumnClass(Integer.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${operAttrName}"));
-        columnBinding.setColumnName("Атрибут");
-        columnBinding.setColumnClass(String.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${operatonDelta}"));
-        columnBinding.setColumnName("Минут");
-        columnBinding.setColumnClass(Integer.class);
-        bindingGroup.addBinding(jTableBinding);
-        jTableBinding.bind();
+            },
+            new String [] {
+
+            }
+        ));
+        jTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(jTable);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -227,8 +201,6 @@ public class frGetTicketJInternalFrame extends javax.swing.JInternalFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        bindingGroup.bind();
-
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -236,80 +208,71 @@ public class frGetTicketJInternalFrame extends javax.swing.JInternalFrame {
     Кривое обновление таблицы, нужен переход на TableModel
      */
     private void RefreshTable() {
-        quList = qu.getResultList();
-        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, quList, jTable);
-        org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${operationAddressIndex}"));
-        columnBinding.setColumnName("Индекс");
-        columnBinding.setColumnClass(String.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${operDate}"));
-        columnBinding.setColumnName("Дата");
-        columnBinding.setColumnClass(java.util.Date.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${operTypeID}"));
-        columnBinding.setColumnName("Тип ID");
-        columnBinding.setColumnClass(Integer.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${operTypeName}"));
-        columnBinding.setColumnName("Тип операции");
-        columnBinding.setColumnClass(String.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${operAttrID}"));
-        columnBinding.setColumnName("Атр ID");
-        columnBinding.setColumnClass(Integer.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${operAttrName}"));
-        columnBinding.setColumnName("Атрибут");
-        columnBinding.setColumnClass(String.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${operatonDelta}"));
-        columnBinding.setColumnName("Минут");
-        columnBinding.setColumnClass(Integer.class);
-        bindingGroup.addBinding(jTableBinding);
-        jTableBinding.bind();
     }
 
     private void btGetTicketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btGetTicketActionPerformed
         this.setCursor((Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));
-        SOAPRequest instance = new SOAPRequest(login, password);
-        SOAPMessage soapmessage;
-        try {
-            soapmessage = instance.GetTicket(edBarcode.getText());
-//            if (soapBody.hasFault()) {
-//                System.out.println("Fault with code: " + soapBody.getFault().getFaultCode());
-//            }
-
-            Document doc = soapmessage.getSOAPBody().extractContentAsDocument();
-
-            doc.getDocumentElement().normalize();
-            System.out.println(doc.getDocumentElement().getNodeName());
-            NodeList nList = doc.getElementsByTagName("ns3:OperationHistoryData");
-
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PERSISTENCE");
+        EntityManager db = emf.createEntityManager();
+        TypedQuery<Ticket> query = db.createNamedQuery("Ticket.findByBarcode", Ticket.class);
+        query.setParameter("barcode", edBarcode.getText());
+        List<Ticket> tickets = query.getResultList();
+        if (tickets.isEmpty()) {
             ticket = new Ticket(edBarcode.getText());
-            his = null;
-            for (int i = 0; i < nList.getLength(); i++) {
-                getData(nList);
-            }
-            if (his instanceof Historyrecord) {
-                ticket.getHistoryrecordCollection().add(his);
-            }
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("PERSISTENCE-TEST");
-            EntityManager db = emf.createEntityManager();
-            db.getTransaction().begin();
-            db.persist(ticket);
-            db.getTransaction().commit();
-            db.close();
-            RefreshTable();
-        this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));            
-        } catch (SOAPException ex) {
-            Logger.getLogger(frGetTicketJInternalFrame.class.getName()).log(Level.SEVERE, null, ex);
+        } else if (tickets.size() == 1) {
+            ticket = tickets.get(0);
+        } else {
+            throw new NonUniqueResultException();
         }
+        if (!ticket.isIsFinal()) {
+            ticket.getHistoryrecordCollection().clear();
+            SOAPRequest instance = new SOAPRequest(login, password);
+            SOAPMessage soapmessage;
+            try {
+                soapmessage = instance.GetTicket(edBarcode.getText());
+                if (soapmessage.getSOAPBody().hasFault()) {
+                    System.out.println("Fault with code: " + soapmessage.getSOAPBody().getFault().getFaultCode());
+                }
+
+                Document doc = soapmessage.getSOAPBody().extractContentAsDocument();
+
+                doc.getDocumentElement().normalize();
+                System.out.println(doc.getDocumentElement().getNodeName());
+                NodeList nList = doc.getElementsByTagName("ns3:OperationHistoryData");
+
+                his = null;
+                for (int i = 0; i < nList.getLength(); i++) {
+                    getData(nList);
+                }
+                if (his instanceof Historyrecord) {
+                    ticket.getHistoryrecordCollection().add(his);
+                    if ((his.getOperTypeID()==2) | ((his.getOperAttrID() == 1) | (his.getOperAttrID() == 1)) & (his.getOperTypeID() == 5)) {
+                        ticket.setIsFinal(true);
+                    }
+                }
+                db.getTransaction().begin();
+                if (ticket.isIsNewTicket()) {
+                    db.persist(ticket);
+                } else {
+                    db.merge(ticket);
+                }
+                db.getTransaction().commit();
+                db.close();
+            } catch (SOAPException ex) {
+                Logger.getLogger(GetTicketJInternalFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        HistoryrecordModel tm = new HistoryrecordModel((List<Historyrecord>) ticket.getHistoryrecordCollection());
+        jTable.setModel(tm);
+        this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));
     }//GEN-LAST:event_btGetTicketActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btGetTicket;
     private javax.swing.JTextField edBarcode;
-    private javax.persistence.EntityManager em;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable;
-    private javax.persistence.Query qu;
-    private java.util.List<ru.russianpost.siberia.maventestapp.DataAccess.Historyrecord> quList;
-    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }

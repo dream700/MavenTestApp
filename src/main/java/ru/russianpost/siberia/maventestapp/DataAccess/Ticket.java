@@ -13,16 +13,15 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -31,7 +30,7 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author Andrey.Isakov
  */
 @Entity
-@Table(name = "ticket",schema = "app")
+@Table(name = "ticket", schema = "app")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Ticket.findAll", query = "SELECT t FROM Ticket t")
@@ -51,12 +50,35 @@ public class Ticket implements Serializable {
     @JoinColumn(name = "barcode", referencedColumnName = "barcode")
     private Collection<Historyrecord> historyrecordCollection;
 
+    @Column(name = "isFinal")
+    private boolean isFinal;
+
+    public boolean isIsFinal() {
+        return isFinal;
+    }
+
+    public void setIsFinal(boolean isFinal) {
+        this.isFinal = isFinal;
+    }
+    @Transient
+    private boolean isNewTicket = false;
+
+    /**
+     * Get the value of isNewTicket
+     *
+     * @return the value of isNewTicket
+     */
+    public boolean isIsNewTicket() {
+        return isNewTicket;
+    }
+
     public Ticket() {
     }
 
     public Ticket(String barcode) {
         this.dateFetch = new Date();
         this.barcode = barcode;
+        this.isNewTicket = true;
         historyrecordCollection = new ArrayList<>();
     }
 

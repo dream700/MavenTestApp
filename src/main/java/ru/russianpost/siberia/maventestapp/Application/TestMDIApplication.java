@@ -146,7 +146,7 @@ public class TestMDIApplication extends javax.swing.JFrame {
 
     private void jmnGetTicketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmnGetTicketActionPerformed
         this.setCursor((Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));
-        frGetTicketJInternalFrame frGetTicket = new frGetTicketJInternalFrame();
+        GetTicketJInternalFrame frGetTicket = new GetTicketJInternalFrame();
         desktopPane.add(frGetTicket);
         frGetTicket.setVisible(true);
         this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));

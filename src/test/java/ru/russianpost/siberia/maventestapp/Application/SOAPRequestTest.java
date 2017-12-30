@@ -24,7 +24,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import ru.russianpost.siberia.maventestapp.DataAccess.Historyrecord;
 import ru.russianpost.siberia.maventestapp.DataAccess.Ticket;
-import ru.russianpost.siberia.maventestapp.DataAccess.TicketJpaController;
 
 /**
  *
