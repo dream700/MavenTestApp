@@ -135,7 +135,7 @@ public class SOAPRequestTest {
                     his.setOperAttrName(getValue(eElement));
                 }
                 if ("OperDate".equals(eElement.getLocalName())) {
-                    his.setOperDate(getValue(eElement),false);
+                    his.setOperDate(getValue(eElement), false);
                 }
                 if ("Sndr".equals(eElement.getLocalName())) {
                     his.setSndr(getValue(eElement));
@@ -193,9 +193,6 @@ public class SOAPRequestTest {
         em.persist(ticket);
         em.getTransaction().commit();
         em.close();
-
-//        TicketJpaController DBTicket = new TicketJpaController(emf);
-//        DBTicket.create(ticket);
     }
 
 }
