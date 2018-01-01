@@ -76,7 +76,7 @@ public class Ticket implements Serializable {
     }
 
     public Ticket(String barcode) {
-        this.dateFetch = new Date();
+        this.dateFetch = null;
         this.barcode = barcode;
         this.isNewTicket = true;
         historyrecordCollection = new ArrayList<>();

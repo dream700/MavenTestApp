@@ -5,15 +5,7 @@
  */
 package ru.russianpost.siberia.maventestapp.Application;
 
-import java.io.StringWriter;
 import javax.xml.soap.*;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
 
 
 /**

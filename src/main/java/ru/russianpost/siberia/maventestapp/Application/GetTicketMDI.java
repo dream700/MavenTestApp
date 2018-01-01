@@ -7,6 +7,7 @@ package ru.russianpost.siberia.maventestapp.Application;
 
 import java.awt.Cursor;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -30,7 +31,7 @@ import ru.russianpost.siberia.maventestapp.DataAccess.Ticket;
  *
  * @author Andrey.Isakov
  */
-public class GetTicketJInternalFrame extends javax.swing.JInternalFrame {
+public class GetTicketMDI extends javax.swing.JInternalFrame {
 
     String login = "hfaoUUkggxfrPJ";
     String password = "8O4OofKi4Nsz";
@@ -40,7 +41,7 @@ public class GetTicketJInternalFrame extends javax.swing.JInternalFrame {
     /**
      * Creates new form frGetTicketJInternalFrame
      */
-    public GetTicketJInternalFrame() {
+    public GetTicketMDI() {
         ticket = null;
         initComponents();
     }
@@ -153,6 +154,12 @@ public class GetTicketJInternalFrame extends javax.swing.JInternalFrame {
 
         edBarcode.setText("Введите номер ШПИ");
         edBarcode.setToolTipText("Введите номер ШПИ");
+        edBarcode.setSelectionStart(0);
+        edBarcode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                edBarcodeActionPerformed(evt);
+            }
+        });
 
         btGetTicket.setText("Запросить");
         btGetTicket.addActionListener(new java.awt.event.ActionListener() {
@@ -246,11 +253,12 @@ public class GetTicketJInternalFrame extends javax.swing.JInternalFrame {
                 }
                 if (his instanceof Historyrecord) {
                     ticket.getHistoryrecordCollection().add(his);
-                    if ((his.getOperTypeID()==2) | ((his.getOperAttrID() == 1) | (his.getOperAttrID() == 1)) & (his.getOperTypeID() == 5)) {
+                    if ((his.getOperTypeID() == 2) | ((his.getOperAttrID() == 1) | (his.getOperAttrID() == 2)) & (his.getOperTypeID() == 5)) {
                         ticket.setIsFinal(true);
                     }
                 }
                 db.getTransaction().begin();
+                ticket.setDateFetch(new Date());
                 if (ticket.isIsNewTicket()) {
                     db.persist(ticket);
                 } else {
@@ -259,13 +267,17 @@ public class GetTicketJInternalFrame extends javax.swing.JInternalFrame {
                 db.getTransaction().commit();
                 db.close();
             } catch (SOAPException ex) {
-                Logger.getLogger(GetTicketJInternalFrame.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(GetTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         HistoryrecordModel tm = new HistoryrecordModel((List<Historyrecord>) ticket.getHistoryrecordCollection());
         jTable.setModel(tm);
         this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));
     }//GEN-LAST:event_btGetTicketActionPerformed
+
+    private void edBarcodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edBarcodeActionPerformed
+        btGetTicketActionPerformed(evt);
+    }//GEN-LAST:event_edBarcodeActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

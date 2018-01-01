@@ -46,6 +46,7 @@ public class TestMDIApplication extends javax.swing.JFrame {
         aboutMenuItem = new javax.swing.JMenuItem();
         jMenu1 = new javax.swing.JMenu();
         jmnGetTicket = new javax.swing.JMenuItem();
+        jMenuItem1 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -122,6 +123,14 @@ public class TestMDIApplication extends javax.swing.JFrame {
         });
         jMenu1.add(jmnGetTicket);
 
+        jMenuItem1.setText("Пакетная обработка");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem1);
+
         menuBar.add(jMenu1);
 
         setJMenuBar(menuBar);
@@ -146,11 +155,19 @@ public class TestMDIApplication extends javax.swing.JFrame {
 
     private void jmnGetTicketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmnGetTicketActionPerformed
         this.setCursor((Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));
-        GetTicketJInternalFrame frGetTicket = new GetTicketJInternalFrame();
+        GetTicketMDI frGetTicket = new GetTicketMDI();
         desktopPane.add(frGetTicket);
         frGetTicket.setVisible(true);
         this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));
     }//GEN-LAST:event_jmnGetTicketActionPerformed
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        this.setCursor((Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));
+        GetBatchTicketMDI frGetBatchTicket = new GetBatchTicketMDI();
+        desktopPane.add(frGetBatchTicket);
+        frGetBatchTicket.setVisible(true);
+        this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -199,6 +216,7 @@ public class TestMDIApplication extends javax.swing.JFrame {
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu helpMenu;
     private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jmnGetTicket;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem openMenuItem;
