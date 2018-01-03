@@ -5,7 +5,7 @@
  */
 package ru.russianpost.siberia.maventestapp.Application;
 
-import java.util.ArrayList;
+import java.util.List;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.Name;
 import javax.xml.soap.SOAPBody;
@@ -19,11 +19,11 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
+import ru.russianpost.siberia.maventestapp.DataAccess.Ticket;
 
 /*
 * @author Andrey.Isakov
  */
-
 public class SOAPBatchRequest {
 
     public String Login;
@@ -43,7 +43,7 @@ public class SOAPBatchRequest {
   идентификаторов отправлений и параметры доступа к API Сервиса отслеживания
   (логин и пароль).
      */
-    public SOAPMessage GetTicket(ArrayList<Barcodes> Barcodes) throws SOAPException, TransformerConfigurationException, TransformerException {
+    public SOAPMessage GetTicket(List<Ticket> tickets) throws SOAPException, TransformerConfigurationException, TransformerException {
         /*
         Пример запроса
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
@@ -96,8 +96,8 @@ public class SOAPBatchRequest {
                 "fcl", "http://fclient.russianpost.org");
         SOAPElement ticketRequest = body.addChildElement("ticketRequest", "pos");
         SOAPElement request = ticketRequest.addChildElement("request");
-        for (Barcodes ticket : Barcodes) {
-              ticket.item = request.addChildElement("Item", "fcl");
+        for (Ticket ticket : tickets) {
+            ticket.item = request.addChildElement("Item", "fcl");
         }
         SOAPElement login = ticketRequest.addChildElement("login");
         SOAPElement password = ticketRequest.addChildElement("password");
@@ -106,8 +106,8 @@ public class SOAPBatchRequest {
         // Заполняем значения
         SOAPFactory sf = SOAPFactory.newInstance();
         Name barcode = sf.createName("Barcode");
-        for (Barcodes ticket : Barcodes) {
-              ticket.item.addAttribute(barcode,ticket.barcode);
+        for (Ticket ticket : tickets) {
+            ticket.item.addAttribute(barcode, ticket.getBarcode());
         }
         login.addTextNode(Login);
         password.addTextNode(Password);

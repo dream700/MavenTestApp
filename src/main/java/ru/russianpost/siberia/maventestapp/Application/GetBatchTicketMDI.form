@@ -21,9 +21,14 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
-              <Component id="btFileLoad" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
-              <Component id="lbFilename" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="btRequest" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Component id="btFileLoad" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
+                      <Component id="lbFilename" min="-2" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
               <EmptySpace pref="141" max="32767" attributes="0"/>
           </Group>
       </Group>
@@ -36,7 +41,9 @@
                   <Component id="btFileLoad" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="lbFilename" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="229" max="32767" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Component id="btRequest" min="-2" max="-2" attributes="0"/>
+              <EmptySpace pref="182" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -54,6 +61,14 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="&#x424;&#x430;&#x439;&#x43b; &#x43d;&#x435; &#x432;&#x44b;&#x431;&#x440;&#x430;&#x43d; (&#x437;&#x430;&#x433;&#x440;&#x443;&#x437;&#x438;&#x442;&#x435; .txt &#x438;&#x43b;&#x438; Excel &#x441;&#x43f;&#x438;&#x441;&#x43e;&#x43a;)"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="btRequest">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="&#x417;&#x430;&#x43f;&#x440;&#x43e;&#x441;&#x438;&#x442;&#x44c;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btRequestActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

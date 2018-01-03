@@ -8,6 +8,7 @@ package ru.russianpost.siberia.maventestapp.Application;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -144,18 +145,18 @@ public class SOAPBatchRequestTest {
     @Test
     public void testGetTicket() throws Exception {
         System.out.println("GetTicket");
-        ArrayList<Barcodes> barcodes = new ArrayList<>();
-        barcodes.add(new Barcodes("63010217306573"));
-        barcodes.add(new Barcodes("63010217306573"));
-        barcodes.add(new Barcodes("63010217306580"));
-        barcodes.add(new Barcodes("63010217306832"));
-        barcodes.add(new Barcodes("63010217306849"));
-        barcodes.add(new Barcodes("63010217306856"));
-        barcodes.add(new Barcodes("63010217307273"));
-        barcodes.add(new Barcodes("63010217307280"));
+        List<Ticket> barcodes = new ArrayList<>();
+        barcodes.add(new Ticket("63010217306573"));
+        barcodes.add(new Ticket("63010217306573"));
+        barcodes.add(new Ticket("63010217306580"));
+        barcodes.add(new Ticket("63010217306832"));
+        barcodes.add(new Ticket("63010217306849"));
+        barcodes.add(new Ticket("63010217306856"));
+        barcodes.add(new Ticket("63010217307273"));
+        barcodes.add(new Ticket("63010217307280"));
         SOAPBatchRequest instance = new SOAPBatchRequest(login, password);
-//        SOAPMessage result = instance.GetTicket(barcodes);
-        SOAPMessage result = null;
+        SOAPMessage result = instance.GetTicket(barcodes);
+//        SOAPMessage result = null;
 
         if (result instanceof SOAPMessage) {
             SOAPBody soapBody = result.getSOAPBody();
@@ -174,6 +175,8 @@ public class SOAPBatchRequestTest {
             Document doc = result.getSOAPBody().extractContentAsDocument();
 
             doc.getDocumentElement().normalize();
+            String br = doc.getElementsByTagName("value").item(0).getFirstChild().getNodeValue();
+            System.out.println(br);
         }
         barcodes.clear();
         assertEquals(result, null);

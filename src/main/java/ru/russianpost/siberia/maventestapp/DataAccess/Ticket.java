@@ -15,6 +15,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.NamedNativeQueries;
+import javax.persistence.NamedNativeQuery;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -24,6 +26,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.soap.SOAPElement;
 
 /**
  *
@@ -36,6 +39,8 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Ticket.findAll", query = "SELECT t FROM Ticket t")
     , @NamedQuery(name = "Ticket.findByBarcode", query = "SELECT t FROM Ticket t WHERE t.barcode = :barcode")
     , @NamedQuery(name = "Ticket.findByDateFetch", query = "SELECT t FROM Ticket t WHERE t.dateFetch = :dateFetch")})
+@NamedNativeQueries({
+    @NamedNativeQuery(name = "Ticket.findDateFetchisNull", query = "SELECT * FROM app.ticket WHERE dateFetch is null limit 2800", resultClass = Ticket.class)})
 public class Ticket implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -62,6 +67,8 @@ public class Ticket implements Serializable {
     }
     @Transient
     private boolean isNewTicket = false;
+    @Transient
+    public SOAPElement item;
 
     /**
      * Get the value of isNewTicket

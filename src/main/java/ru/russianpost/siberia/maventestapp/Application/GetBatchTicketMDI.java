@@ -5,27 +5,46 @@
  */
 package ru.russianpost.siberia.maventestapp.Application;
 
+import java.awt.Cursor;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.NonUniqueResultException;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.TransformerException;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import ru.russianpost.siberia.maventestapp.DataAccess.Historyrecord;
 import ru.russianpost.siberia.maventestapp.DataAccess.Ticket;
+import ru.russianpost.siberia.maventestapp.DataAccess.TicketReq;
 
 /**
  *
  * @author andy
  */
 public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
+
+    String login = "hfaoUUkggxfrPJ";
+    String password = "8O4OofKi4Nsz";
 
     /**
      * Creates new form GetBatchTicketMDI
@@ -45,6 +64,7 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
 
         btFileLoad = new javax.swing.JButton();
         lbFilename = new javax.swing.JLabel();
+        btRequest = new javax.swing.JButton();
 
         btFileLoad.setText("Загрузить");
         btFileLoad.addActionListener(new java.awt.event.ActionListener() {
@@ -55,15 +75,25 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
 
         lbFilename.setText("Файл не выбран (загрузите .txt или Excel список)");
 
+        btRequest.setText("Запросить");
+        btRequest.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btRequestActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(19, 19, 19)
-                .addComponent(btFileLoad)
-                .addGap(35, 35, 35)
-                .addComponent(lbFilename)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btRequest)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btFileLoad)
+                        .addGap(35, 35, 35)
+                        .addComponent(lbFilename)))
                 .addContainerGap(141, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -73,47 +103,217 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btFileLoad)
                     .addComponent(lbFilename))
-                .addContainerGap(229, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(btRequest)
+                .addContainerGap(182, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    Historyrecord his;
+    Ticket ticket;
+    ArrayList<Ticket> tickets;
+
+    public Historyrecord getHis() {
+        return his;
+    }
+
+    private static String getTagValue(String sTag, Element eElement) {
+        Attr attr = eElement.getAttributeNode(sTag);
+        return attr.getNodeValue();
+    }
+
+    private Object getLastElement(final Collection c) {
+        final Iterator itr = c.iterator();
+        Object lastElement = itr.next();
+        while (itr.hasNext()) {
+            lastElement = itr.next();
+        }
+        return lastElement;
+    }
+
+    private Element getData(NodeList nList) {
+        Element retNodeList = null;
+        for (int i = 0; i < nList.getLength(); i++) {
+            Node node = nList.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                Element eElement = (Element) node;
+                if ("ns3:Item".equals(eElement.getNodeName())) {
+                    if (ticket instanceof Ticket) {
+                        tickets.add(ticket);
+                    }
+                    String barcode = getTagValue("Barcode", eElement);
+                    ticket = new Ticket(barcode);
+                }
+                if ("Operation".equals(eElement.getLocalName())) {
+                    if (ticket.getHistoryrecordCollection().size() > 0) {
+                        his = new Historyrecord(((Historyrecord) getLastElement(ticket.getHistoryrecordCollection())).getOperDate());
+                    } else {
+                        his = new Historyrecord();
+                    }
+                    his.setOperTypeID(getTagValue("OperTypeID", eElement));
+                    his.setOperTypeName(getTagValue("OperName", eElement));
+                    his.setOperAttrID(getTagValue("OperCtgID", eElement));
+                    his.setOperDate(getTagValue("DateOper", eElement), true);
+                    his.setOperationAddressIndex(getTagValue("IndexOper", eElement));
+                    ticket.getHistoryrecordCollection().add(his);
+                }
+                if (eElement.hasChildNodes()) {
+                    getData(eElement.getChildNodes());
+                }
+            }
+        }
+        return retNodeList;
+    }
+
+    public boolean getSOAPTicketAnswer() {
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PERSISTENCE");
+        EntityManager db = emf.createEntityManager();
+        TypedQuery<TicketReq> query = db.createNamedQuery("TicketReq.findAll", TicketReq.class);
+        List<TicketReq> req = query.getResultList();
+        for (TicketReq ticketReq : req) {
+            SOAPBatchRequest instance = new SOAPBatchRequest(login, password);
+            try {
+                SOAPMessage result = instance.GetResponseByTicket(ticketReq.getTicketrequest());
+                SOAPBody soapBody = result.getSOAPBody();
+                if (soapBody.hasFault()) {
+                    Logger.getLogger(GetBatchTicketMDI.class.getName()).log(Level.SEVERE, null, "Fault with code: " + soapBody.getFault().getFaultCode());
+                    return false;
+                }
+                Document doc = result.getSOAPBody().extractContentAsDocument();
+                doc.getDocumentElement().normalize();
+                NodeList nList = doc.getElementsByTagName("ns2:answerByTicketResponse");
+
+                tickets = new ArrayList<>();
+                for (int i = 0; i < nList.getLength(); i++) {
+                    getData(nList);
+                }
+                if (ticket instanceof Ticket) {
+                    tickets.add(ticket);
+                }
+                db.getTransaction().begin();
+                tickets.forEach((tc) -> {
+                    db.merge(tc);
+                });
+                db.remove(ticketReq);
+                db.getTransaction().commit();
+                tickets.clear();
+            } catch (SOAPException ex) {
+                Logger.getLogger(GetBatchTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
+                db.close();
+                return false;
+            }
+        }
+        req.clear();
+        db.close();
+        return true;
+    }
+
+    /*
+    Читаем из файла данные и записываем в таблицу ticket
+    */
+    private boolean readFromFileTickets(File file) {
+        lbFilename.setText(file.getName());
+        super.update(this.getGraphics());
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PERSISTENCE");
+        EntityManager db = emf.createEntityManager();
+        TypedQuery<Ticket> query = db.createNamedQuery("Ticket.findByBarcode", Ticket.class);
+        Ticket tk;
+        try {
+            List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
+            db.getTransaction().begin();
+            for (String line : lines) {
+                query.setParameter("barcode", line);
+                List<Ticket> tks = query.getResultList();
+                if (tks.isEmpty()) {
+                    tk = new Ticket(line);
+                    db.persist(tk);
+                } else if (!tks.get(0).isIsFinal()) {
+                    tk = tks.get(0);
+                    tk.setDateFetch(null);
+                    db.merge(tk);
+                }
+                tks.clear();
+            }
+            db.getTransaction().commit();
+            lines.clear();
+        } catch (IOException ex) {
+            Logger.getLogger(GetBatchTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
+            db.getTransaction().rollback();
+            db.close();
+            return false;
+        }
+        db.close();
+        return true;
+    }
+
+    /*Формирование и запрос пакета SOAP
+     */
+    public boolean getSOAPTicketRequest() {
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PERSISTENCE");
+        EntityManager db = emf.createEntityManager();
+        TypedQuery<Ticket> query = db.createNamedQuery("Ticket.findDateFetchisNull", Ticket.class);
+        List<Ticket> tks;
+        while (!(tks = query.getResultList()).isEmpty()) {
+            SOAPBatchRequest instance = new SOAPBatchRequest(login, password);
+            SOAPMessage result;
+            try {
+                result = instance.GetTicket(tks);
+                if (result instanceof SOAPMessage) {
+                    SOAPBody soapBody = result.getSOAPBody();
+                    if (soapBody.hasFault()) {
+                        throw new SOAPException("Fault with code: " + soapBody.getFault().getFaultCode());
+                    }
+                    Document doc = result.getSOAPBody().extractContentAsDocument();
+                    doc.getDocumentElement().normalize();
+                    String br = doc.getElementsByTagName("value").item(0).getFirstChild().getNodeValue();
+                    TicketReq tr = new TicketReq(br);
+                    db.getTransaction().begin();
+                    for (Ticket tk : tks) {
+                        tk.setDateFetch(new Date());
+                        db.merge(tk);
+                    }
+                    db.persist(tr);
+                    db.getTransaction().commit();
+                }
+            } catch (SOAPException | TransformerException ex) {
+                Logger.getLogger(GetBatchTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
+                db.close();
+                return false;
+            }
+            tks.clear();;
+        }
+        db.close();
+        return true;
+    }
+
+
     private void btFileLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btFileLoadActionPerformed
+        this.setCursor((Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));
         JFileChooser saveFile = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
                 "TXT & CVS Files", "txt", "cvs");
         saveFile.setFileFilter(filter);
         if (saveFile.showDialog(null, "Выберите файл") == JFileChooser.APPROVE_OPTION) {
-            File file = saveFile.getSelectedFile();
-            lbFilename.setText(file.getName());
-            super.update(this.getGraphics());
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("PERSISTENCE");
-            EntityManager db = emf.createEntityManager();
-            TypedQuery<Ticket> query = db.createNamedQuery("Ticket.findByBarcode", Ticket.class);
-            db.getTransaction().begin();
-            try {
-                List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
-                for (String line : lines) {
-                    query.setParameter("barcode", line);
-                    List<Ticket> tickets = query.getResultList();
-                    if (tickets.isEmpty()) {
-                        Ticket ticket = new Ticket(line);
-                        db.persist(ticket);
-                    }
-                }
-                db.getTransaction().commit();
-            } catch (IOException ex) {
-                Logger.getLogger(GetBatchTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
-                db.getTransaction().rollback();
+            if (readFromFileTickets(saveFile.getSelectedFile())) {
+                getSOAPTicketRequest();
             }
-            db.close();
         }
+        this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));
     }//GEN-LAST:event_btFileLoadActionPerformed
+
+    private void btRequestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btRequestActionPerformed
+        this.setCursor((Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));
+        getSOAPTicketAnswer();
+        this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));
+
+    }//GEN-LAST:event_btRequestActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btFileLoad;
+    private javax.swing.JButton btRequest;
     private javax.swing.JLabel lbFilename;
     // End of variables declaration//GEN-END:variables
 }
