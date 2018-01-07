@@ -6,6 +6,7 @@
 package ru.russianpost.siberia.maventestapp.Application;
 
 import java.awt.Cursor;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -33,8 +34,11 @@ import ru.russianpost.siberia.maventestapp.DataAccess.Ticket;
  */
 public class GetTicketMDI extends javax.swing.JInternalFrame {
 
-    String login = "hfaoUUkggxfrPJ";
-    String password = "8O4OofKi4Nsz";
+    private final String login = "hfaoUUkggxfrPJ";
+    private final String password = "8O4OofKi4Nsz";
+    private final EntityManagerFactory emf;
+    private EntityManager db;
+
     Historyrecord his;
     private Ticket ticket;
 
@@ -42,8 +46,15 @@ public class GetTicketMDI extends javax.swing.JInternalFrame {
      * Creates new form frGetTicketJInternalFrame
      */
     public GetTicketMDI() {
-        ticket = null;
         initComponents();
+        emf = Persistence.createEntityManagerFactory("PERSISTENCE");
+        db = emf.createEntityManager();
+    }
+
+    @Override
+    public boolean isClosed() {
+        db.close();
+        return super.isClosed(); //To change body of generated methods, choose Tools | Templates.
     }
 
     /*
@@ -80,7 +91,11 @@ public class GetTicketMDI extends javax.swing.JInternalFrame {
                 Element eElement = (Element) node;
                 if ("historyRecord".equals(eElement.getLocalName())) {
                     if (his instanceof Historyrecord) {
+                        db.remove(ticket.getHistoryrecordCollection());
+                        ticket.setHistoryrecordCollection(new ArrayList<>());
                         ticket.getHistoryrecordCollection().add(his);
+                        his.setBarcode(ticket);
+                        db.persist(his);
                     }
                     if (ticket.getHistoryrecordCollection().size() > 0) {
                         his = new Historyrecord(((Historyrecord) getLastElement(ticket.getHistoryrecordCollection())).getOperDate());
@@ -219,17 +234,11 @@ public class GetTicketMDI extends javax.swing.JInternalFrame {
 
     private void btGetTicketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btGetTicketActionPerformed
         this.setCursor((Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PERSISTENCE");
-        EntityManager db = emf.createEntityManager();
-        TypedQuery<Ticket> query = db.createNamedQuery("Ticket.findByBarcode", Ticket.class);
-        query.setParameter("barcode", edBarcode.getText());
-        List<Ticket> tickets = query.getResultList();
-        if (tickets.isEmpty()) {
+        db.getTransaction().begin();
+        ticket = db.find(Ticket.class, edBarcode.getText());
+        if (ticket == null) {
             ticket = new Ticket(edBarcode.getText());
-        } else if (tickets.size() == 1) {
-            ticket = tickets.get(0);
-        } else {
-            throw new NonUniqueResultException();
+            db.persist(ticket);
         }
         if (!ticket.isIsFinal()) {
             ticket.getHistoryrecordCollection().clear();
@@ -257,15 +266,8 @@ public class GetTicketMDI extends javax.swing.JInternalFrame {
                         ticket.setIsFinal(true);
                     }
                 }
-                db.getTransaction().begin();
                 ticket.setDateFetch(new Date());
-                if (ticket.isIsNewTicket()) {
-                    db.persist(ticket);
-                } else {
-                    db.merge(ticket);
-                }
                 db.getTransaction().commit();
-                db.close();
             } catch (SOAPException ex) {
                 Logger.getLogger(GetTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
             }

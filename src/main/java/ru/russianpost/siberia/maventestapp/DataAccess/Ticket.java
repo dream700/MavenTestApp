@@ -13,6 +13,7 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.NamedNativeQueries;
@@ -51,7 +52,7 @@ public class Ticket implements Serializable {
     @Column(name = "DateFetch")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateFetch;
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "barcode", referencedColumnName = "barcode")
     private Collection<Historyrecord> historyrecordCollection;
 
@@ -66,18 +67,7 @@ public class Ticket implements Serializable {
         this.isFinal = isFinal;
     }
     @Transient
-    private boolean isNewTicket = false;
-    @Transient
     public SOAPElement item;
-
-    /**
-     * Get the value of isNewTicket
-     *
-     * @return the value of isNewTicket
-     */
-    public boolean isIsNewTicket() {
-        return isNewTicket;
-    }
 
     public Ticket() {
     }
@@ -85,7 +75,6 @@ public class Ticket implements Serializable {
     public Ticket(String barcode) {
         this.dateFetch = null;
         this.barcode = barcode;
-        this.isNewTicket = true;
         historyrecordCollection = new ArrayList<>();
     }
 

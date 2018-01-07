@@ -43,14 +43,20 @@ import ru.russianpost.siberia.maventestapp.DataAccess.TicketReq;
  */
 public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
 
-    String login = "hfaoUUkggxfrPJ";
-    String password = "8O4OofKi4Nsz";
+    private final String login = "hfaoUUkggxfrPJ";
+    private final String password = "8O4OofKi4Nsz";
+    private Historyrecord his;
+    private Ticket ticket;
+    private final EntityManagerFactory emf;
+    private EntityManager db;
 
     /**
      * Creates new form GetBatchTicketMDI
      */
     public GetBatchTicketMDI() {
         initComponents();
+        emf = Persistence.createEntityManagerFactory("PERSISTENCE");
+        db = emf.createEntityManager();
     }
 
     /**
@@ -111,14 +117,6 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    Historyrecord his;
-    Ticket ticket;
-    ArrayList<Ticket> tickets;
-
-    public Historyrecord getHis() {
-        return his;
-    }
-
     private static String getTagValue(String sTag, Element eElement) {
         Attr attr = eElement.getAttributeNode(sTag);
         return attr.getNodeValue();
@@ -133,6 +131,7 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
         return lastElement;
     }
 
+    Date last;
     private Element getData(NodeList nList) {
         Element retNodeList = null;
         for (int i = 0; i < nList.getLength(); i++) {
@@ -140,24 +139,33 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
             if (node.getNodeType() == Node.ELEMENT_NODE) {
                 Element eElement = (Element) node;
                 if ("ns3:Item".equals(eElement.getNodeName())) {
-                    if (ticket instanceof Ticket) {
-                        tickets.add(ticket);
-                    }
                     String barcode = getTagValue("Barcode", eElement);
-                    ticket = new Ticket(barcode);
+                    ticket = db.find(Ticket.class, barcode);
+                    if (ticket == null) {
+                        ticket = new Ticket(barcode);
+                        db.persist(ticket);
+                    } else {
+                        Query query = db.createQuery("delete Historyrecord where barcode = :barcode");
+                        query.setParameter("barcode", ticket);
+                        query.executeUpdate();
+                    }
+                    ticket.setDateFetch(new Date());
+                    last = null;
                 }
                 if ("Operation".equals(eElement.getLocalName())) {
-                    if (ticket.getHistoryrecordCollection().size() > 0) {
-                        his = new Historyrecord(((Historyrecord) getLastElement(ticket.getHistoryrecordCollection())).getOperDate());
-                    } else {
-                        his = new Historyrecord();
-                    }
+                    his = new Historyrecord(last);
                     his.setOperTypeID(getTagValue("OperTypeID", eElement));
                     his.setOperTypeName(getTagValue("OperName", eElement));
                     his.setOperAttrID(getTagValue("OperCtgID", eElement));
                     his.setOperDate(getTagValue("DateOper", eElement), true);
                     his.setOperationAddressIndex(getTagValue("IndexOper", eElement));
-                    ticket.getHistoryrecordCollection().add(his);
+                    his.setBarcode(ticket);
+//                    ticket.getHistoryrecordCollection().add(his);
+                    if ((his.getOperTypeID() == 2) | ((his.getOperAttrID() == 1) | (his.getOperAttrID() == 2)) & (his.getOperTypeID() == 5)) {
+                        ticket.setIsFinal(true);
+                    }
+                    last= his.getOperDate();
+                    db.persist(his);
                 }
                 if (eElement.hasChildNodes()) {
                     getData(eElement.getChildNodes());
@@ -168,8 +176,6 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
     }
 
     public boolean getSOAPTicketAnswer() {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PERSISTENCE");
-        EntityManager db = emf.createEntityManager();
         TypedQuery<TicketReq> query = db.createNamedQuery("TicketReq.findAll", TicketReq.class);
         List<TicketReq> req = query.getResultList();
         for (TicketReq ticketReq : req) {
@@ -184,75 +190,52 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
                 Document doc = result.getSOAPBody().extractContentAsDocument();
                 doc.getDocumentElement().normalize();
                 NodeList nList = doc.getElementsByTagName("ns2:answerByTicketResponse");
-
-                tickets = new ArrayList<>();
+                db.getTransaction().begin();
                 for (int i = 0; i < nList.getLength(); i++) {
                     getData(nList);
                 }
-                if (ticket instanceof Ticket) {
-                    tickets.add(ticket);
-                }
-                db.getTransaction().begin();
-                tickets.forEach((tc) -> {
-                    db.merge(tc);
-                });
-                db.remove(ticketReq);
+//                db.remove(ticketReq);
                 db.getTransaction().commit();
-                tickets.clear();
             } catch (SOAPException ex) {
                 Logger.getLogger(GetBatchTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
-                db.close();
+                db.getTransaction().rollback();
                 return false;
             }
         }
-        req.clear();
-        db.close();
         return true;
     }
 
     /*
     Читаем из файла данные и записываем в таблицу ticket
-    */
+     */
     private boolean readFromFileTickets(File file) {
         lbFilename.setText(file.getName());
         super.update(this.getGraphics());
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PERSISTENCE");
-        EntityManager db = emf.createEntityManager();
-        TypedQuery<Ticket> query = db.createNamedQuery("Ticket.findByBarcode", Ticket.class);
-        Ticket tk;
         try {
             List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
             db.getTransaction().begin();
             for (String line : lines) {
-                query.setParameter("barcode", line);
-                List<Ticket> tks = query.getResultList();
-                if (tks.isEmpty()) {
+                Ticket tk = db.find(Ticket.class, line);
+                if (tk == null) {
                     tk = new Ticket(line);
                     db.persist(tk);
-                } else if (!tks.get(0).isIsFinal()) {
-                    tk = tks.get(0);
+                } else if (!tk.isIsFinal()) {
                     tk.setDateFetch(null);
-                    db.merge(tk);
                 }
-                tks.clear();
             }
             db.getTransaction().commit();
             lines.clear();
         } catch (IOException ex) {
             Logger.getLogger(GetBatchTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
             db.getTransaction().rollback();
-            db.close();
             return false;
         }
-        db.close();
         return true;
     }
 
     /*Формирование и запрос пакета SOAP
      */
     public boolean getSOAPTicketRequest() {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PERSISTENCE");
-        EntityManager db = emf.createEntityManager();
         TypedQuery<Ticket> query = db.createNamedQuery("Ticket.findDateFetchisNull", Ticket.class);
         List<Ticket> tks;
         while (!(tks = query.getResultList()).isEmpty()) {
@@ -272,20 +255,22 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
                     db.getTransaction().begin();
                     for (Ticket tk : tks) {
                         tk.setDateFetch(new Date());
-                        db.merge(tk);
                     }
                     db.persist(tr);
                     db.getTransaction().commit();
                 }
             } catch (SOAPException | TransformerException ex) {
                 Logger.getLogger(GetBatchTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
-                db.close();
                 return false;
             }
-            tks.clear();;
         }
-        db.close();
         return true;
+    }
+
+    @Override
+    public boolean isClosed() {
+        db.close();
+        return super.isClosed();
     }
 
 
