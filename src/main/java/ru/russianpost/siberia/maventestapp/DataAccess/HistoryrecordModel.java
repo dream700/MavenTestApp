@@ -18,7 +18,7 @@ public class HistoryrecordModel extends AbstractTableModel {
 
     private final List<Historyrecord> historyrecords;
     private final String[] columnNames = new String[]{
-        "Индекс", "Дата", "Тип ID", "Операция", "Атп ID", "Атрибут", "Минут"
+        "Индекс", "Дата", "Тип ID", "Операция", "Атп ID", "Атрибут", "Часов"
     };
     private final Class[] columnClass = new Class[]{
         String.class, Date.class, Integer.class, String.class, Integer.class, String.class, Integer.class

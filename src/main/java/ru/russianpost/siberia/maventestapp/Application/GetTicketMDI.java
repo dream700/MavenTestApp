@@ -17,6 +17,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -91,10 +92,8 @@ public class GetTicketMDI extends javax.swing.JInternalFrame {
                 Element eElement = (Element) node;
                 if ("historyRecord".equals(eElement.getLocalName())) {
                     if (his instanceof Historyrecord) {
-                        db.remove(ticket.getHistoryrecordCollection());
-                        ticket.setHistoryrecordCollection(new ArrayList<>());
+//                        his.setBarcode(ticket);
                         ticket.getHistoryrecordCollection().add(his);
-                        his.setBarcode(ticket);
                         db.persist(his);
                     }
                     if (ticket.getHistoryrecordCollection().size() > 0) {
@@ -234,13 +233,16 @@ public class GetTicketMDI extends javax.swing.JInternalFrame {
 
     private void btGetTicketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btGetTicketActionPerformed
         this.setCursor((Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));
-        db.getTransaction().begin();
         ticket = db.find(Ticket.class, edBarcode.getText());
         if (ticket == null) {
             ticket = new Ticket(edBarcode.getText());
             db.persist(ticket);
         }
         if (!ticket.isIsFinal()) {
+            db.getTransaction().begin();
+            Query query = db.createQuery("delete Historyrecord where barcode = :barcode");
+            query.setParameter("barcode", ticket);
+            query.executeUpdate();
             ticket.getHistoryrecordCollection().clear();
             SOAPRequest instance = new SOAPRequest(login, password);
             SOAPMessage soapmessage;

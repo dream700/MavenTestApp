@@ -132,6 +132,7 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
     }
 
     Date last;
+
     private Element getData(NodeList nList) {
         Element retNodeList = null;
         for (int i = 0; i < nList.getLength(); i++) {
@@ -160,11 +161,10 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
                     his.setOperDate(getTagValue("DateOper", eElement), true);
                     his.setOperationAddressIndex(getTagValue("IndexOper", eElement));
                     his.setBarcode(ticket);
-//                    ticket.getHistoryrecordCollection().add(his);
                     if ((his.getOperTypeID() == 2) | ((his.getOperAttrID() == 1) | (his.getOperAttrID() == 2)) & (his.getOperTypeID() == 5)) {
                         ticket.setIsFinal(true);
                     }
-                    last= his.getOperDate();
+                    last = his.getOperDate();
                     db.persist(his);
                 }
                 if (eElement.hasChildNodes()) {
@@ -194,7 +194,7 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
                 for (int i = 0; i < nList.getLength(); i++) {
                     getData(nList);
                 }
-//                db.remove(ticketReq);
+                db.remove(ticketReq);
                 db.getTransaction().commit();
             } catch (SOAPException ex) {
                 Logger.getLogger(GetBatchTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
@@ -238,6 +238,7 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
     public boolean getSOAPTicketRequest() {
         TypedQuery<Ticket> query = db.createNamedQuery("Ticket.findDateFetchisNull", Ticket.class);
         List<Ticket> tks;
+        db.getTransaction().begin();
         while (!(tks = query.getResultList()).isEmpty()) {
             SOAPBatchRequest instance = new SOAPBatchRequest(login, password);
             SOAPMessage result;
@@ -252,18 +253,20 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
                     doc.getDocumentElement().normalize();
                     String br = doc.getElementsByTagName("value").item(0).getFirstChild().getNodeValue();
                     TicketReq tr = new TicketReq(br);
-                    db.getTransaction().begin();
                     for (Ticket tk : tks) {
                         tk.setDateFetch(new Date());
                     }
                     db.persist(tr);
-                    db.getTransaction().commit();
                 }
             } catch (SOAPException | TransformerException ex) {
                 Logger.getLogger(GetBatchTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
+                if (db.getTransaction().isActive()) {
+                    db.getTransaction().rollback();
+                }
                 return false;
             }
         }
+        db.getTransaction().commit();
         return true;
     }
 
