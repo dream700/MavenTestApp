@@ -239,21 +239,21 @@ public class GetTicketMDI extends javax.swing.JInternalFrame {
             db.persist(ticket);
         }
         if (!ticket.isIsFinal()) {
-            db.getTransaction().begin();
-            Query query = db.createQuery("delete Historyrecord where barcode = :barcode");
-            query.setParameter("barcode", ticket);
-            query.executeUpdate();
-            ticket.getHistoryrecordCollection().clear();
             SOAPRequest instance = new SOAPRequest(login, password);
             SOAPMessage soapmessage;
             try {
-                soapmessage = instance.GetTicket(edBarcode.getText());
+                soapmessage = instance.GetTicket(ticket.getBarcode());
                 if (soapmessage.getSOAPBody().hasFault()) {
-                    System.out.println("Fault with code: " + soapmessage.getSOAPBody().getFault().getFaultCode());
+//                    System.out.println("Fault with code: " + soapmessage.getSOAPBody().getFault().getFaultCode());
+                    new Throwable("Ошибка сервера");
                 }
+                db.getTransaction().begin();
+                Query query = db.createQuery("delete Historyrecord where barcode = :barcode");
+                query.setParameter("barcode", ticket);
+                query.executeUpdate();
+                ticket.getHistoryrecordCollection().clear();
 
                 Document doc = soapmessage.getSOAPBody().extractContentAsDocument();
-
                 doc.getDocumentElement().normalize();
                 System.out.println(doc.getDocumentElement().getNodeName());
                 NodeList nList = doc.getElementsByTagName("ns3:OperationHistoryData");
