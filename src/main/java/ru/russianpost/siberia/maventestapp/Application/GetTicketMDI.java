@@ -163,6 +163,12 @@ public class GetTicketMDI extends javax.swing.JInternalFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable = new javax.swing.JTable();
 
+        setClosable(true);
+        setIconifiable(true);
+        setMaximizable(true);
+        setResizable(true);
+        setTitle("Запрос одиночного ШПИ");
+
         jLabel1.setText("Введите номер ШПИ");
 
         edBarcode.setText("Введите номер ШПИ");

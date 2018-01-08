@@ -64,6 +64,7 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
         initComponents();
         emf = Persistence.createEntityManagerFactory("PERSISTENCE");
         db = emf.createEntityManager();
+        lbReq.setText("");
     }
 
     /**
@@ -79,17 +80,24 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
         lbFilename = new javax.swing.JLabel();
         btRequest = new javax.swing.JButton();
         btExcel = new javax.swing.JButton();
+        lbReq = new javax.swing.JLabel();
 
-        btFileLoad.setText("Загрузить");
+        setClosable(true);
+        setIconifiable(true);
+        setMaximizable(true);
+        setResizable(true);
+        setTitle("Пакетный запрос ШПИ");
+
+        btFileLoad.setText("Загрузить файл");
         btFileLoad.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btFileLoadActionPerformed(evt);
             }
         });
 
-        lbFilename.setText("Файл не выбран (загрузите .txt или Excel список)");
+        lbFilename.setText("Файл не выбран (загрузите .txt список)");
 
-        btRequest.setText("Запросить");
+        btRequest.setText("Запросить на сервере");
         btRequest.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btRequestActionPerformed(evt);
@@ -103,6 +111,8 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
             }
         });
 
+        lbReq.setText("jLabel1");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -111,12 +121,15 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
                 .addGap(19, 19, 19)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btExcel)
-                    .addComponent(btRequest)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btRequest)
+                        .addGap(33, 33, 33)
+                        .addComponent(lbReq))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btFileLoad)
                         .addGap(35, 35, 35)
                         .addComponent(lbFilename)))
-                .addContainerGap(141, Short.MAX_VALUE))
+                .addContainerGap(169, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -126,7 +139,9 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
                     .addComponent(btFileLoad)
                     .addComponent(lbFilename))
                 .addGap(18, 18, 18)
-                .addComponent(btRequest)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btRequest)
+                    .addComponent(lbReq))
                 .addGap(18, 18, 18)
                 .addComponent(btExcel)
                 .addContainerGap(135, Short.MAX_VALUE))
@@ -270,6 +285,7 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
                     Document doc = result.getSOAPBody().extractContentAsDocument();
                     doc.getDocumentElement().normalize();
                     String br = doc.getElementsByTagName("value").item(0).getFirstChild().getNodeValue();
+                    lbReq.setText(br+" получке");
                     TicketReq tr = new TicketReq(br);
                     for (Ticket tk : tks) {
                         tk.setDateFetch(new Date());
@@ -305,7 +321,6 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
             reqfile = saveFile.getSelectedFile();
             if (readFromFileTickets(reqfile)) {
                 getSOAPTicketRequest();
-                btExcel.setEnabled(false);
             }
         }
         this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));
@@ -404,5 +419,6 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
     private javax.swing.JButton btFileLoad;
     private javax.swing.JButton btRequest;
     private javax.swing.JLabel lbFilename;
+    private javax.swing.JLabel lbReq;
     // End of variables declaration//GEN-END:variables
 }
