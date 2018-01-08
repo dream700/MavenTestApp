@@ -22,6 +22,7 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="btExcel" min="-2" max="-2" attributes="0"/>
                   <Component id="btRequest" min="-2" max="-2" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Component id="btFileLoad" min="-2" max="-2" attributes="0"/>
@@ -43,7 +44,9 @@
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="btRequest" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="182" max="32767" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Component id="btExcel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace pref="135" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -68,6 +71,14 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btRequestActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="btExcel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="&#x412;&#x44b;&#x433;&#x440;&#x443;&#x437;&#x438;&#x442;&#x44c; Excel"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btExcelActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

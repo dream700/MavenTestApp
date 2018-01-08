@@ -7,6 +7,8 @@ package ru.russianpost.siberia.maventestapp.Application;
 
 import java.awt.Cursor;
 import java.io.File;
+import static java.io.FileDescriptor.out;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -33,6 +35,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import ru.russianpost.siberia.maventestapp.DataAccess.Historyrecord;
 import ru.russianpost.siberia.maventestapp.DataAccess.Ticket;
 import ru.russianpost.siberia.maventestapp.DataAccess.TicketReq;
@@ -48,7 +54,8 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
     private Historyrecord his;
     private Ticket ticket;
     private final EntityManagerFactory emf;
-    private EntityManager db;
+    private final EntityManager db;
+    File reqfile;
 
     /**
      * Creates new form GetBatchTicketMDI
@@ -71,6 +78,7 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
         btFileLoad = new javax.swing.JButton();
         lbFilename = new javax.swing.JLabel();
         btRequest = new javax.swing.JButton();
+        btExcel = new javax.swing.JButton();
 
         btFileLoad.setText("Загрузить");
         btFileLoad.addActionListener(new java.awt.event.ActionListener() {
@@ -88,6 +96,13 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
             }
         });
 
+        btExcel.setText("Выгрузить Excel");
+        btExcel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btExcelActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -95,6 +110,7 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(19, 19, 19)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btExcel)
                     .addComponent(btRequest)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btFileLoad)
@@ -111,7 +127,9 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
                     .addComponent(lbFilename))
                 .addGap(18, 18, 18)
                 .addComponent(btRequest)
-                .addContainerGap(182, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(btExcel)
+                .addContainerGap(135, Short.MAX_VALUE))
         );
 
         pack();
@@ -284,8 +302,10 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
                 "TXT & CVS Files", "txt", "cvs");
         saveFile.setFileFilter(filter);
         if (saveFile.showDialog(null, "Выберите файл") == JFileChooser.APPROVE_OPTION) {
-            if (readFromFileTickets(saveFile.getSelectedFile())) {
+            reqfile = saveFile.getSelectedFile();
+            if (readFromFileTickets(reqfile)) {
                 getSOAPTicketRequest();
+                btExcel.setEnabled(false);
             }
         }
         this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));
@@ -294,12 +314,93 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
     private void btRequestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btRequestActionPerformed
         this.setCursor((Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));
         getSOAPTicketAnswer();
+        btExcel.setEnabled(true);
         this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));
 
     }//GEN-LAST:event_btRequestActionPerformed
 
+    // заполнение строки (rowNum) определенного листа (sheet)
+    // данными  из dataModel созданного в памяти Excel файла
+    private int createSheetHeader(HSSFSheet sheet, int rowNum, Ticket t) {
+        Row row = sheet.createRow(rowNum);
+        row.createCell(0).setCellValue(t.getBarcode());
+        row.createCell(1).setCellValue(t.getDateFetch().toString());
+        row.createCell(2).setCellValue(t.isIsFinal());
+        for (Historyrecord h : t.getHistoryrecordCollection()) {
+            Row r = sheet.createRow(++rowNum);
+            r.createCell(1).setCellValue(h.getOperationAddressIndex());
+            r.createCell(2).setCellValue(h.getOperDate().toString());
+            r.createCell(3).setCellValue(h.getOperTypeID());
+            r.createCell(4).setCellValue(h.getOperTypeName());
+            r.createCell(5).setCellValue(h.getOperAttrID());
+            r.createCell(6).setCellValue(h.getOperAttrName());
+            r.createCell(7).setCellValue(h.getOperatonDelta());
+        }
+        return rowNum;
+    }
+
+    private File GetFileRequest() {
+        JFileChooser saveFile = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                "TXT & CVS Files", "txt", "cvs");
+        saveFile.setFileFilter(filter);
+        if (saveFile.showDialog(null, "Выберите файл") == JFileChooser.APPROVE_OPTION) {
+            return saveFile.getSelectedFile();
+        }
+        return null;
+    }
+
+    private void btExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btExcelActionPerformed
+        if (reqfile == null) {
+            reqfile = GetFileRequest();
+            if (reqfile == null) {
+                return;
+            }
+        }
+        JFileChooser saveFile = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                "XLS Files", "xls");
+        saveFile.setFileFilter(filter);
+        if (saveFile.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+
+            try {
+                this.setCursor((Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));
+
+                // создание самого excel файла в памяти
+                HSSFWorkbook workbook = new HSSFWorkbook();
+                // создание листа с названием "Просто лист"
+                HSSFSheet sheet = workbook.createSheet("Просто лист");
+
+                List<String> lines = Files.readAllLines(reqfile.toPath(), StandardCharsets.UTF_8);
+                // счетчик для строк
+                int rowNum = 0;
+                // создаем подписи к столбцам (это будет первая строчка в листе Excel файла)
+                Row row = sheet.createRow(rowNum);
+                row.createCell(0).setCellValue("ШПИ");
+                row.createCell(1).setCellValue("Дата");
+                row.createCell(2).setCellValue("Финал");
+                for (String line : lines) {
+                    Ticket t = db.find(Ticket.class, line);
+                    if (t != null) {
+                        rowNum = createSheetHeader(sheet, ++rowNum, t);
+                    }
+                }
+                // записываем созданный в памяти Excel документ в файл
+                try (FileOutputStream f = new FileOutputStream(saveFile.getSelectedFile())) {
+                    workbook.write(f);
+                } catch (IOException ex) {
+                    Logger.getLogger(GetBatchTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(GetBatchTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));
+        }
+    }//GEN-LAST:event_btExcelActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btExcel;
     private javax.swing.JButton btFileLoad;
     private javax.swing.JButton btRequest;
     private javax.swing.JLabel lbFilename;
