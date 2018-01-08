@@ -6,7 +6,6 @@
 package ru.russianpost.siberia.maventestapp.Application;
 
 import java.awt.Cursor;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -15,10 +14,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.NonUniqueResultException;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.swing.table.TableColumn;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import org.w3c.dom.Document;
@@ -27,6 +25,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import ru.russianpost.siberia.maventestapp.DataAccess.Historyrecord;
 import ru.russianpost.siberia.maventestapp.DataAccess.HistoryrecordModel;
+import ru.russianpost.siberia.maventestapp.DataAccess.HistoryrecordTableCell;
 import ru.russianpost.siberia.maventestapp.DataAccess.Ticket;
 
 /**
@@ -276,6 +275,8 @@ public class GetTicketMDI extends javax.swing.JInternalFrame {
         }
         HistoryrecordModel tm = new HistoryrecordModel((List<Historyrecord>) ticket.getHistoryrecordCollection());
         jTable.setModel(tm);
+        HistoryrecordTableCell render = new HistoryrecordTableCell();
+        jTable.getColumnModel().getColumn(6).setCellRenderer(render);
         this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));
     }//GEN-LAST:event_btGetTicketActionPerformed
 
