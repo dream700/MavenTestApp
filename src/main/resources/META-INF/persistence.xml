@@ -6,12 +6,12 @@
     <class>ru.russianpost.siberia.maventestapplication.DataAccess.Historyrecord</class>
     <class>ru.russianpost.siberia.maventestapplication.DataAccess.Ticket</class>
     <properties>
-      <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/postgres"/>
-      <property name="javax.persistence.jdbc.user" value="postgres"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://R54OTH01.main.russianpost.ru:5432/pdata"/>
+      <property name="javax.persistence.jdbc.user" value="puser"/>
       <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
-      <property name="javax.persistence.jdbc.password" value="masterkey"/>
+      <property name="javax.persistence.jdbc.password" value="Bergman"/>
       <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
-      <property name="javax.persistence.schema-generation.database.action" value="create"/>
+      <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
       <property name="hibernate.hbm2ddl.auto" value="update"/>
     </properties>
   </persistence-unit>

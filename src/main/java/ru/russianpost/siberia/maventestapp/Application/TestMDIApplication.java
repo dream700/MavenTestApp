@@ -50,8 +50,6 @@ public class TestMDIApplication extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        desktopPane.setLayout(null);
-
         fileMenu.setMnemonic('f');
         fileMenu.setText("File");
 
@@ -113,7 +111,7 @@ public class TestMDIApplication extends javax.swing.JFrame {
 
         menuBar.add(helpMenu);
 
-        jMenu1.setText("Test");
+        jMenu1.setText("Мониторинг ШПИ");
 
         jmnGetTicket.setText("Запрос по ШПИ");
         jmnGetTicket.addActionListener(new java.awt.event.ActionListener() {

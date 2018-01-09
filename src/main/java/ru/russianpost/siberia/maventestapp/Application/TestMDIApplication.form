@@ -94,7 +94,7 @@
         </Menu>
         <Menu class="javax.swing.JMenu" name="jMenu1">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Test"/>
+            <Property name="text" type="java.lang.String" value="&#x41c;&#x43e;&#x43d;&#x438;&#x442;&#x43e;&#x440;&#x438;&#x43d;&#x433; &#x428;&#x41f;&#x418;"/>
           </Properties>
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="jmnGetTicket">
