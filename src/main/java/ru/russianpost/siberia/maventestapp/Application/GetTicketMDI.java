@@ -16,7 +16,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
-import javax.swing.table.TableColumn;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import org.w3c.dom.Document;
@@ -34,118 +33,16 @@ import ru.russianpost.siberia.maventestapp.DataAccess.Ticket;
  */
 public class GetTicketMDI extends javax.swing.JInternalFrame {
 
-    private final String login = "hfaoUUkggxfrPJ";
-    private final String password = "8O4OofKi4Nsz";
-    private final EntityManagerFactory emf;
-    private EntityManager db;
-
-    Historyrecord his;
-    private Ticket ticket;
-
     /**
      * Creates new form frGetTicketJInternalFrame
      */
     public GetTicketMDI() {
         initComponents();
-        emf = Persistence.createEntityManagerFactory("PERSISTENCE");
-        db = emf.createEntityManager();
     }
 
     @Override
     public boolean isClosed() {
-        db.close();
         return super.isClosed(); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    /*
-    Дополнительные функции
-     */
-    private static String getTagValue(String sTag, Element eElement) {
-        NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
-        Node nValus = (Node) nlList.item(0);
-        return nValus.getNodeValue();
-    }
-
-    private static String getValue(Element element) {
-        String ret = "";
-        if (element.hasChildNodes()) {
-            ret = element.getChildNodes().item(0).getNodeValue();
-        }
-        return ret;
-    }
-
-    private Object getLastElement(final Collection c) {
-        final Iterator itr = c.iterator();
-        Object lastElement = itr.next();
-        while (itr.hasNext()) {
-            lastElement = itr.next();
-        }
-        return lastElement;
-    }
-
-    private Element getData(NodeList nList) {
-        Element retNodeList = null;
-        for (int i = 0; i < nList.getLength(); i++) {
-            Node node = nList.item(i);
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
-                Element eElement = (Element) node;
-                if ("historyRecord".equals(eElement.getLocalName())) {
-                    if (his instanceof Historyrecord) {
-//                        his.setBarcode(ticket);
-                        ticket.getHistoryrecordCollection().add(his);
-                        db.persist(his);
-                    }
-                    if (ticket.getHistoryrecordCollection().size() > 0) {
-                        his = new Historyrecord(((Historyrecord) getLastElement(ticket.getHistoryrecordCollection())).getOperDate());
-                    } else {
-                        his = new Historyrecord();
-                    }
-                }
-                if ("Index".equals(eElement.getLocalName()) & "DestinationAddress".equals(eElement.getParentNode().getLocalName())) {
-                    his.setDestinationAddressIndex(getValue(eElement));
-                }
-                if ("Description".equals(eElement.getLocalName()) & "DestinationAddress".equals(eElement.getParentNode().getLocalName())) {
-                    his.setDestinationaddressDescription(getValue(eElement));
-                }
-                if ("Index".equals(eElement.getLocalName()) & "OperationAddress".equals(eElement.getParentNode().getLocalName())) {
-                    his.setOperationAddressIndex(getValue(eElement));
-                }
-                if ("Description".equals(eElement.getLocalName()) & "OperationAddress".equals(eElement.getParentNode().getLocalName())) {
-                    his.setOperationAddressDescription(getValue(eElement));
-                }
-                if ("ComplexItemName".equals(eElement.getLocalName())) {
-                    his.setComplexItemName(getValue(eElement));
-                }
-                if ("Mass".equals(eElement.getLocalName())) {
-                    his.setMass(getValue(eElement));
-                }
-                if ("Id".equals(eElement.getLocalName()) & "OperType".equals(eElement.getParentNode().getLocalName())) {
-                    his.setOperTypeID(getValue(eElement));
-                }
-                if ("Name".equals(eElement.getLocalName()) & "OperType".equals(eElement.getParentNode().getLocalName())) {
-                    his.setOperTypeName(getValue(eElement));
-                }
-                if ("Id".equals(eElement.getLocalName()) & "OperAttr".equals(eElement.getParentNode().getLocalName())) {
-                    his.setOperAttrID(getValue(eElement));
-                }
-                if ("Name".equals(eElement.getLocalName()) & "OperAttr".equals(eElement.getParentNode().getLocalName())) {
-                    his.setOperAttrName(getValue(eElement));
-                }
-                if ("OperDate".equals(eElement.getLocalName())) {
-                    his.setOperDate(getValue(eElement), false);
-                }
-                if ("Sndr".equals(eElement.getLocalName())) {
-                    his.setSndr(getValue(eElement));
-                }
-                if ("Rcpn".equals(eElement.getLocalName())) {
-                    his.setRcpn(getValue(eElement));
-                }
-                if (eElement.hasChildNodes()) {
-                    getData(eElement.getChildNodes());
-                }
-            }
-        }
-        return retNodeList;
     }
 
     /**
@@ -224,66 +121,25 @@ public class GetTicketMDI extends javax.swing.JInternalFrame {
                     .addComponent(btGetTicket))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(15, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /* 
-    Кривое обновление таблицы, нужен переход на TableModel
-     */
-    private void RefreshTable() {
-    }
-
     private void btGetTicketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btGetTicketActionPerformed
-        this.setCursor((Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));
-        ticket = db.find(Ticket.class, edBarcode.getText());
-        if (ticket == null) {
-            ticket = new Ticket(edBarcode.getText());
-            db.persist(ticket);
+        this.setCursor((Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));        
+        try { // Call Web Service Operation
+            ViewHistorySRV_Service service = new ViewHistorySRV_Service();
+            ViewHistorySRV port = service.getViewHistorySRVPort();
+            String barcode = edBarcode.getText();
+            ViewhistoryModel tm = new ViewhistoryModel(port.findBarcode(barcode));
+            jTable.setModel(tm);
+            tm.fireTableDataChanged();
+        } catch (Exception ex) {
+            // TODO handle custom exceptions here
         }
-        if (!ticket.isIsFinal()) {
-            SOAPRequest instance = new SOAPRequest(login, password);
-            SOAPMessage soapmessage;
-            try {
-                soapmessage = instance.GetTicket(ticket.getBarcode());
-                if (soapmessage.getSOAPBody().hasFault()) {
-//                    System.out.println("Fault with code: " + soapmessage.getSOAPBody().getFault().getFaultCode());
-                    new Throwable("Ошибка сервера");
-                }
-                db.getTransaction().begin();
-                Query query = db.createQuery("delete Historyrecord where barcode = :barcode");
-                query.setParameter("barcode", ticket);
-                query.executeUpdate();
-                ticket.getHistoryrecordCollection().clear();
-
-                Document doc = soapmessage.getSOAPBody().extractContentAsDocument();
-                doc.getDocumentElement().normalize();
-                System.out.println(doc.getDocumentElement().getNodeName());
-                NodeList nList = doc.getElementsByTagName("ns3:OperationHistoryData");
-
-                his = null;
-                for (int i = 0; i < nList.getLength(); i++) {
-                    getData(nList);
-                }
-                if (his instanceof Historyrecord) {
-                    ticket.getHistoryrecordCollection().add(his);
-                    if ((his.getOperTypeID() == 2) | ((his.getOperAttrID() == 1) | (his.getOperAttrID() == 2)) & (his.getOperTypeID() == 5)) {
-                        ticket.setIsFinal(true);
-                    }
-                }
-                ticket.setDateFetch(new Date());
-                db.getTransaction().commit();
-            } catch (SOAPException ex) {
-                Logger.getLogger(GetTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        HistoryrecordModel tm = new HistoryrecordModel((List<Historyrecord>) ticket.getHistoryrecordCollection());
-        jTable.setModel(tm);
-        HistoryrecordTableCell render = new HistoryrecordTableCell();
-        jTable.getColumnModel().getColumn(6).setCellRenderer(render);
-        this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));
+        this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));       
     }//GEN-LAST:event_btGetTicketActionPerformed
 
     private void edBarcodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edBarcodeActionPerformed
