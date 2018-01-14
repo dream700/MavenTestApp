@@ -14,6 +14,8 @@ That way multiple projects can share the same settings (useful for formatting ru
 Any value defined here will override the pom.xml file value but is only applicable to the current project.
 -->
         <org-netbeans-modules-javascript2-requirejs.enabled>true</org-netbeans-modules-javascript2-requirejs.enabled>
-        <org-netbeans-modules-maven-jaxws._5f_C_5f_ViewHistorySRV>http://localhost:8080/ViewHistorySRV/ViewHistorySRV?wsdl</org-netbeans-modules-maven-jaxws._5f_C_5f_ViewHistorySRV>
+        <org-netbeans-modules-maven-jaxws._5f_C_5f_ViewHistorySRV>file:/Users/andy/Library/Application%20Support/NetBeans/8.2/config/WebServices/ViewHistorySRV/catalog/r54oth01_8080/ViewHistorySRV/ViewHistorySRV.wsdl</org-netbeans-modules-maven-jaxws._5f_C_5f_ViewHistorySRV>
+        <org-netbeans-modules-maven-jaxws._5f_C_5f_GetBatchTicketSRV>http://localhost:8080/GetBatchTicketSRV/GetBatchTicketSRV?wsdl</org-netbeans-modules-maven-jaxws._5f_C_5f_GetBatchTicketSRV>
+        <org-netbeans-modules-maven-jaxws._5f_C_5f_ViewHistorySERV>http://localhost:8080/ViewHistorySERV/ViewHistorySERV?wsdl</org-netbeans-modules-maven-jaxws._5f_C_5f_ViewHistorySERV>
     </properties>
 </project-shared-configuration>

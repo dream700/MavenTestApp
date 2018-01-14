@@ -31,16 +31,34 @@
                         </goals>
                         <configuration>
                             <wsdlFiles>
-                                <wsdlFile>localhost_8080/ViewHistorySRV/ViewHistorySRV.wsdl</wsdlFile>
+                                <wsdlFile>localhost_8080/GetBatchTicketSRV/GetBatchTicketSRV.wsdl</wsdlFile>
                             </wsdlFiles>
                             <packageName>ru.russianpost.siberia.maventestapp.Application</packageName>
                             <vmArgs>
                                 <vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
                             </vmArgs>
-                            <wsdlLocation>http://localhost:8080/ViewHistorySRV/ViewHistorySRV?wsdl</wsdlLocation>
-                            <staleFile>${project.build.directory}/jaxws/stale/ViewHistorySRV.stale</staleFile>
+                            <wsdlLocation>http://localhost:8080/GetBatchTicketSRV/GetBatchTicketSRV?wsdl</wsdlLocation>
+                            <staleFile>${project.build.directory}/jaxws/stale/GetBatchTicketSRV.stale</staleFile>
                         </configuration>
-                        <id>wsimport-generate-ViewHistorySRV</id>
+                        <id>wsimport-generate-GetBatchTicketSRV</id>
+                        <phase>generate-sources</phase>
+                    </execution>
+                    <execution>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>localhost_8080/ViewHistorySERV/ViewHistorySERV.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <packageName>ru.russianpost.siberia.maventestapp.Application</packageName>
+                            <vmArgs>
+                                <vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
+                            </vmArgs>
+                            <wsdlLocation>http://localhost:8080/ViewHistorySERV/ViewHistorySERV?wsdl</wsdlLocation>
+                            <staleFile>${project.build.directory}/jaxws/stale/ViewHistorySERV.stale</staleFile>
+                        </configuration>
+                        <id>wsimport-generate-ViewHistorySERV</id>
                         <phase>generate-sources</phase>
                     </execution>
                 </executions>

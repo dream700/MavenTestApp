@@ -6,26 +6,6 @@
 package ru.russianpost.siberia.maventestapp.Application;
 
 import java.awt.Cursor;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import ru.russianpost.siberia.maventestapp.DataAccess.Historyrecord;
-import ru.russianpost.siberia.maventestapp.DataAccess.HistoryrecordModel;
-import ru.russianpost.siberia.maventestapp.DataAccess.HistoryrecordTableCell;
-import ru.russianpost.siberia.maventestapp.DataAccess.Ticket;
 
 /**
  *
@@ -130,8 +110,8 @@ public class GetTicketMDI extends javax.swing.JInternalFrame {
     private void btGetTicketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btGetTicketActionPerformed
         this.setCursor((Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));        
         try { // Call Web Service Operation
-            ViewHistorySRV_Service service = new ViewHistorySRV_Service();
-            ViewHistorySRV port = service.getViewHistorySRVPort();
+            ViewHistorySERV_Service service = new ViewHistorySERV_Service();
+            ViewHistorySERV port = service.getViewHistorySERVPort();
             String barcode = edBarcode.getText();
             ViewhistoryModel tm = new ViewhistoryModel(port.findBarcode(barcode));
             jTable.setModel(tm);

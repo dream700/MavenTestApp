@@ -2,4 +2,10 @@
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
     <system systemId="http://localhost:8080/ViewHistorySRV/ViewHistorySRV?wsdl" uri="wsdl/localhost_8080/ViewHistorySRV/ViewHistorySRV.wsdl"/>
     <system systemId="http://localhost:8080/ViewHistorySRV/ViewHistorySRV?xsd=1" uri="wsdl/localhost_8080/ViewHistorySRV/ViewHistorySRV.xsd_1.xsd"/>
+    <system systemId="http://r54oth01:8080/ViewHistorySRV/ViewHistorySRV?xsd=1" uri="wsdl/r54oth01_8080/ViewHistorySRV/ViewHistorySRV.xsd_1.xsd"/>
+    <system systemId="http://localhost:8080/GetBatchTicketSRV/GetBatchTicketSRV?wsdl" uri="wsdl/localhost_8080/GetBatchTicketSRV/GetBatchTicketSRV.wsdl"/>
+    <system systemId="http://localhost:8080/GetBatchTicketSRV/GetBatchTicketSRV?xsd=1" uri="wsdl/localhost_8080/GetBatchTicketSRV/GetBatchTicketSRV.xsd_1.xsd"/>
+    <system systemId="file:/Users/andy/Library/Application%20Support/NetBeans/8.2/config/WebServices/ViewHistorySRV/catalog/r54oth01_8080/ViewHistorySRV/ViewHistorySRV.wsdl" uri="wsdl/ViewHistorySRV.wsdl"/>
+    <system systemId="http://localhost:8080/ViewHistorySERV/ViewHistorySERV?wsdl" uri="wsdl/localhost_8080/ViewHistorySERV/ViewHistorySERV.wsdl"/>
+    <system systemId="http://localhost:8080/ViewHistorySERV/ViewHistorySERV?xsd=1" uri="wsdl/localhost_8080/ViewHistorySERV/ViewHistorySERV.xsd_1.xsd"/>
 </catalog>
