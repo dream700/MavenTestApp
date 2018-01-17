@@ -19,12 +19,7 @@ public class GetTicketMDI extends javax.swing.JInternalFrame {
     public GetTicketMDI() {
         initComponents();
     }
-
-    @Override
-    public boolean isClosed() {
-        return super.isClosed(); //To change body of generated methods, choose Tools | Templates.
-    }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -107,19 +102,22 @@ public class GetTicketMDI extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public void EJBGetTicket(String barcode) {
+        ViewHistorySERV_Service service = new ViewHistorySERV_Service();
+        ViewHistorySERV port = service.getViewHistorySERVPort();
+        ViewhistoryModel tm = new ViewhistoryModel(port.findBarcode(barcode));
+        jTable.setModel(tm);
+        tm.fireTableDataChanged();        
+    }
+    
     private void btGetTicketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btGetTicketActionPerformed
         this.setCursor((Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));        
         try { // Call Web Service Operation
-            ViewHistorySERV_Service service = new ViewHistorySERV_Service();
-            ViewHistorySERV port = service.getViewHistorySERVPort();
-            String barcode = edBarcode.getText();
-            ViewhistoryModel tm = new ViewhistoryModel(port.findBarcode(barcode));
-            jTable.setModel(tm);
-            tm.fireTableDataChanged();
+            EJBGetTicket(edBarcode.getText().toUpperCase());
         } catch (Exception ex) {
             // TODO handle custom exceptions here
         }
-        this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));       
+        this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));        
     }//GEN-LAST:event_btGetTicketActionPerformed
 
     private void edBarcodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edBarcodeActionPerformed
