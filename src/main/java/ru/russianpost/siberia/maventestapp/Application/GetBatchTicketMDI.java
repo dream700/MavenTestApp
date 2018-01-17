@@ -7,17 +7,24 @@ package ru.russianpost.siberia.maventestapp.Application;
 
 import java.awt.Cursor;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.activation.MimetypesFileTypeMap;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 
 /**
@@ -125,7 +132,6 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
     private boolean readFromFileTickets(File file) {
         lbFilename.setText(file.getName());
         boolean result = false;
-        super.update(this.getGraphics());
         try {
             List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
             try { // Call Web Service Operation
@@ -146,11 +152,16 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
         this.setCursor((Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));
         JFileChooser saveFile = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                "TXT & CVS Files", "txt", "cvs");
+                "TXT & CVS & XLS Files", "txt", "cvs", "xls");
         saveFile.setFileFilter(filter);
         if (saveFile.showDialog(null, "Выберите файл") == JFileChooser.APPROVE_OPTION) {
             reqfile = saveFile.getSelectedFile();
-            readFromFileTickets(reqfile);
+            String filename = reqfile.getName().toLowerCase();
+            if ((filename.indexOf("txt") > 0) | (filename.indexOf("cvs") > 0)) {
+                readFromFileTickets(reqfile);
+            } else if (filename.indexOf("xls") > 0) {
+                readFromExcelTickets(reqfile);
+            }
         }
         this.setCursor((Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)));
     }//GEN-LAST:event_btFileLoadActionPerformed
@@ -178,30 +189,33 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
         return rowNum;
     }
 
-    private File GetFileRequest() {
+    private File GetFileRequest(boolean isSave, FileNameExtensionFilter filter) {
         JFileChooser saveFile = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                "TXT & CVS Files", "txt", "cvs");
         saveFile.setFileFilter(filter);
-        if (saveFile.showDialog(null, "Выберите файл") == JFileChooser.APPROVE_OPTION) {
-            return saveFile.getSelectedFile();
+        if (isSave) {
+            if (saveFile.showDialog(null, "Выберите файл") == JFileChooser.APPROVE_OPTION) {
+                return saveFile.getSelectedFile();
+            }
+        } else {
+            if (saveFile.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+                return saveFile.getSelectedFile();
+            }
         }
         return null;
     }
 
     private void btExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btExcelActionPerformed
         if (reqfile == null) {
-            reqfile = GetFileRequest();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                    "TXT & CVS Files", "txt", "cvs");
+            reqfile = GetFileRequest(true, new FileNameExtensionFilter("TXT & CVS Files", "txt", "cvs"));
             if (reqfile == null) {
                 return;
             }
         }
-        JFileChooser saveFile = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                "XLS Files", "xls");
-        saveFile.setFileFilter(filter);
-        if (saveFile.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-
+        
+        File saveFile = GetFileRequest(true,new FileNameExtensionFilter("XLS Files", "xls"));
+        if (saveFile != null) {
             try {
                 this.setCursor((Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));
 
@@ -231,7 +245,7 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
                     }
                 }
                 // записываем созданный в памяти Excel документ в файл
-                try (FileOutputStream f = new FileOutputStream(saveFile.getSelectedFile())) {
+                try (FileOutputStream f = new FileOutputStream(saveFile)) {
                     workbook.write(f);
                 } catch (IOException ex) {
                     Logger.getLogger(GetBatchTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
@@ -251,4 +265,56 @@ public class GetBatchTicketMDI extends javax.swing.JInternalFrame {
     private javax.swing.JLabel lbFilename;
     private javax.swing.JLabel lbReq;
     // End of variables declaration//GEN-END:variables
+
+    private boolean readFromExcelTickets(File file) {
+        lbFilename.setText(file.getName());
+        boolean result = false;
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            // создание самого excel файла в памяти
+            HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+            // Get first sheet from the workbook
+            HSSFSheet sheet = workbook.getSheetAt(0);
+            // Get iterator to all the rows in current sheet
+            Iterator<Row> rowIterator = sheet.iterator();
+            List<String> lines = new ArrayList<>();
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+                // Get iterator to all cells of current row 
+                Iterator<Cell> cellIterator = row.cellIterator();
+                while (cellIterator.hasNext()) {
+                    Cell cell = cellIterator.next();
+                    // Change to getCellType() if using POI 4.x
+                    CellType cellType = cell.getCellTypeEnum();
+                    switch (cellType) {
+                        case NUMERIC:
+                            Double value = cell.getNumericCellValue();
+                            validateTicketFormat(lines, String.valueOf(value.toString()));
+                            break;
+                        case STRING:
+                            validateTicketFormat(lines, cell.getStringCellValue());
+                            break;
+                    }
+                }
+            }
+            try { // Call Web Service Operation
+                GetBatchTicketSRV_Service service = new GetBatchTicketSRV_Service();
+                GetBatchTicketSRV port = service.getGetBatchTicketSRVPort();
+                result = port.getBatchTickets(lines);
+            } catch (Exception ex) {
+                Logger.getLogger(GetBatchTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            lines.clear();
+        } catch (IOException ex) {
+            Logger.getLogger(GetBatchTicketMDI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    private boolean validateTicketFormat(List<String> lines, String barcode) {
+        if (true) {
+            lines.add(barcode.toUpperCase());
+        }
+        return true;
+    }
 }
