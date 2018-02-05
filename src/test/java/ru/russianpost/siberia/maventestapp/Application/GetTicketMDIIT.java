@@ -41,6 +41,16 @@ public class GetTicketMDIIT {
     /**
      * Test of isClosed method, of class GetTicketMDI.
      */
+    @Test
+    public void testSPLIT() {
+        System.out.println("SPLIT");
+        String str = "11111111|2222222;\"3333333\"|4444444|\"Test is test\"|This is a, test";
+        
+        String[] data = str.replaceAll("\"", "").split("[|;]");
+        for (String string : data) {
+            System.out.println(string);
+        }
+    }
 
     /**
      * Test of isClosed method, of class GetTicketMDI.
@@ -53,7 +63,7 @@ public class GetTicketMDIIT {
         boolean result = instance.isClosed();
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+//        fail("The test case is a prototype.");
     }
 
     /**
@@ -66,7 +76,7 @@ public class GetTicketMDIIT {
         GetTicketMDI instance = new GetTicketMDI();
         instance.EJBGetTicket(barcode);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+//        fail("The test case is a prototype.");
     }
 
 }
