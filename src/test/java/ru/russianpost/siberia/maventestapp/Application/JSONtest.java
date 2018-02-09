@@ -5,14 +5,16 @@
  */
 package ru.russianpost.siberia.maventestapp.Application;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.sf.corn.httpclient.HttpClient;
+import net.sf.corn.httpclient.HttpClient.HTTP_METHOD;
+import net.sf.corn.httpclient.HttpResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,7 +23,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -132,41 +133,53 @@ public class JSONtest {
                 + "}"
                 + "],"
                 + "\"bag_list\":[],\"document_list\":[],\"links_list\":[]}";
+        String barcode = "63097716956614";
         String http = "http://int.reports.pochta.ru/easops/api/Doc//";
-        JSONObject obj = new JSONObject(json);
+
         try {
-            parseJson(obj);
-        } catch (ParseException ex) {
-            Logger.getLogger(JSONtest.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (JSONException ex) {
+            HttpClient client = new HttpClient(new URI(http+barcode));
+            HttpResponse response = client.sendData(HTTP_METHOD.GET);
+            if (!response.hasError()) {
+                String jsonString = response.getData();
+                JSONObject obj = new JSONObject(jsonString);
+                try {
+                    parseJson(obj);
+                } catch (ParseException ex) {
+                    Logger.getLogger(JSONtest.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (JSONException ex) {
+                    Logger.getLogger(JSONtest.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                JSONArray links_list = obj.getJSONArray("links_list");
+                JSONObject sys_id = obj.getJSONObject("sys_id");
+                JSONArray rpo_list = obj.getJSONArray("rpo_list");
+                JSONObject base = rpo_list.getJSONObject(0);
+                JSONObject base_info = base.getJSONObject("base_info");
+                JSONObject sys_id1 = base_info.getJSONObject("sys_id");
+                System.out.println("Version:" + sys_id1.getString("po_version") + " " + sys_id1.getString("source_id"));
+                JSONObject rpo_info = base.getJSONObject("rpo_info");
+                JSONObject rcpn = rpo_info.getJSONObject("rcpn");
+                System.out.println("Name:" + rcpn.getString("name"));
+                JSONObject rcpn_address = rpo_info.getJSONObject("rcpn_address");
+                System.out.println("Recpt index:" + rcpn_address.getString("index"));
+                JSONObject raddress = rcpn_address.getJSONObject("address");
+                System.out.println("Place:" + raddress.getString("place"));
+                System.out.println("Street:" + raddress.getString("street"));
+                JSONObject sndr = rpo_info.getJSONObject("sndr");
+                System.out.println("Sender name:" + sndr.getString("name"));
+                JSONObject sndr_address = rpo_info.getJSONObject("sndr_address");
+                System.out.println("Sender index:" + sndr_address.getString("index"));
+                JSONObject saddress = sndr_address.getJSONObject("address");
+                System.out.println("Region:" + saddress.getString("region"));
+                System.out.println("Area:" + saddress.getString("area"));
+                System.out.println("Place:" + saddress.getString("place"));
+                System.out.println("Street:" + saddress.getString("street"));
+                JSONObject shouse = saddress.getJSONObject("house");
+                System.out.println("Value:" + shouse.getString("value"));
+            }
+        } catch (URISyntaxException | IOException ex) {
             Logger.getLogger(JSONtest.class.getName()).log(Level.SEVERE, null, ex);
         }
-        JSONArray links_list = obj.getJSONArray("links_list");
-        JSONObject sys_id = obj.getJSONObject("sys_id");
-        JSONArray rpo_list = obj.getJSONArray("rpo_list");
-        JSONObject base = rpo_list.getJSONObject(0);
-        JSONObject base_info = base.getJSONObject("base_info");
-        JSONObject sys_id1 = base_info.getJSONObject("sys_id");
-        System.out.println("Version:" + sys_id1.getString("po_version") + " " + sys_id1.getString("source_id"));
-        JSONObject rpo_info = base.getJSONObject("rpo_info");
-        JSONObject rcpn = rpo_info.getJSONObject("rcpn");
-        System.out.println("Name:" + rcpn.getString("name"));
-        JSONObject rcpn_address = rpo_info.getJSONObject("rcpn_address");
-        System.out.println("Recpt index:" + rcpn_address.getString("index"));
-        JSONObject raddress = rcpn_address.getJSONObject("address");
-        System.out.println("Place:" + raddress.getString("place"));
-        System.out.println("Street:" + raddress.getString("street"));
-        JSONObject sndr = rpo_info.getJSONObject("sndr");
-        System.out.println("Sender name:" + sndr.getString("name"));
-        JSONObject sndr_address = rpo_info.getJSONObject("sndr_address");
-        System.out.println("Sender index:" + sndr_address.getString("index"));
-        JSONObject saddress = sndr_address.getJSONObject("address");
-        System.out.println("Region:" + saddress.getString("region"));
-        System.out.println("Area:" + saddress.getString("area"));
-        System.out.println("Place:" + saddress.getString("place"));
-        System.out.println("Street:" + saddress.getString("street"));
-        JSONObject shouse = saddress.getJSONObject("house");
-        System.out.println("Value:" + shouse.getString("value"));
+
     }
 
     private void swith(String toString) {
