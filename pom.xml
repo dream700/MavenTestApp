@@ -123,7 +123,6 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20140107</version>
-            <scope>test</scope>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -133,15 +132,27 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-            <version>7.0</version>
+            <groupId>com.google.collections</groupId>
+            <artifactId>google-collections</artifactId>
+            <version>1.0</version>
+            <scope>test</scope>
+            <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-web-api</artifactId>
-            <version>7.0</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>19.0</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.google.maps</groupId>
+            <artifactId>google-maps-services</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>1.7.25</version>
         </dependency>
     </dependencies>
     <properties>

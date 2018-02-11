@@ -5,11 +5,22 @@
  */
 package ru.russianpost.siberia.maventestapp.Application;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.maps.DistanceMatrixApi;
+import com.google.maps.GeoApiContext;
+import com.google.maps.GeocodingApi;
+import com.google.maps.errors.ApiException;
+import com.google.maps.model.DistanceMatrix;
+import com.google.maps.model.GeocodingResult;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.sf.corn.httpclient.HttpClient;
@@ -20,6 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -78,24 +90,30 @@ public class JSONtest {
                     parseJson((JSONObject) jsonObject.get(obj));
                 } else {
                     System.out.println(obj.toString() + "\t" + jsonObject.get(obj));
-//                    if ("po_version".equals(obj.toString())) {
-//                        System.out.println("VERSION:" + jsonObject.get(obj));
-//                    } else if ("source_id".equals(obj.toString())) {
-//                        System.out.println("SOFWARE: " + jsonObject.get(obj));
-//                    } else if ("index".equals(obj.toString())) {
-//                        System.out.println("Index from:" + jsonObject.get(obj));
-//                    } else if ("index_to".equals(obj.toString())) {
-//                        System.out.println("Index to:" + jsonObject.get(obj));
-//                    } else if ("name".equals(obj.toString())) {
-//                        System.out.println("Sender name:" + jsonObject.get(obj));
-//                    } else if ("category_id".equals(obj.toString())) {
-//                        System.out.println("Category:" + jsonObject.get(obj));
-//                    }else if ("type".equals(obj.toString())) {
-//                        System.out.println("Type:" + jsonObject.get(obj));
-//                    }
                 }
             }
         }
+    }
+
+    @Test
+    public void testGoogleMap() throws ApiException, InterruptedException, IOException {
+        final String[] origins = {
+            "Россия, Новосибирск, улица Семьи Шамшиных, 58",
+            "Россия, Новосибирск, улица Гоголя, 13",
+            "Россия, Новосибирск, улица Челюскинцев, 9",};
+        // адрес или координаты пунктов назначения
+        final String[] destionations = {
+            "Россия, Новосибирск, улица Гоголя, 13",
+            "Россия, Новосибирск, улица Челюскинцев, 9",
+            "Россия, Новосибирск, улица Ленина, 5"
+        };
+        // в запросе адреса должны разделяться символом '|'
+        GeoApiContext context = new GeoApiContext.Builder()
+                .apiKey("AIzaSyBQMltRwBvTs6lHT5fz4FaIGYZnbGEoiQs")
+                .build();
+        DistanceMatrix results = DistanceMatrixApi.getDistanceMatrix(context, origins, destionations).custom("language", "ru").await();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        System.out.println(gson.toJson(results));
     }
 
     @Test
@@ -137,7 +155,7 @@ public class JSONtest {
         String http = "http://int.reports.pochta.ru/easops/api/Doc//";
 
         try {
-            HttpClient client = new HttpClient(new URI(http+barcode));
+            HttpClient client = new HttpClient(new URI(http + barcode));
             HttpResponse response = client.sendData(HTTP_METHOD.GET);
             if (!response.hasError()) {
                 String jsonString = response.getData();
@@ -146,8 +164,10 @@ public class JSONtest {
                     parseJson(obj);
                 } catch (ParseException ex) {
                     Logger.getLogger(JSONtest.class.getName()).log(Level.SEVERE, null, ex);
+                    fail(ex.getMessage());
                 } catch (JSONException ex) {
                     Logger.getLogger(JSONtest.class.getName()).log(Level.SEVERE, null, ex);
+                    fail(ex.getMessage());
                 }
                 JSONArray links_list = obj.getJSONArray("links_list");
                 JSONObject sys_id = obj.getJSONObject("sys_id");
@@ -178,6 +198,7 @@ public class JSONtest {
             }
         } catch (URISyntaxException | IOException ex) {
             Logger.getLogger(JSONtest.class.getName()).log(Level.SEVERE, null, ex);
+            fail(ex.getMessage());
         }
 
     }
